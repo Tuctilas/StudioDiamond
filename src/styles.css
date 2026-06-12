@@ -1,0 +1,184 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  /* paleta: preto/grafite + dourado (luxo do nicho) */
+  --color-noir-950: #0a0807;
+  --color-noir-900: #120f0d;
+  --color-noir-800: #1a1612;
+  --color-noir-700: #262019;
+  --color-noir-600: #36302a;
+
+  --color-gold-300: #f4d98a;
+  --color-gold-400: #e0bd6b;
+  --color-gold-500: #c9a24e;
+  --color-gold-600: #a8843a;
+  --color-gold-700: #8a6d2f;
+
+  --color-ink: #f4ecdd;
+  --color-muted: #a89a82;
+  --color-line: #2a2318;
+
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-noir-950);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  color-scheme: dark;
+}
+
+/* controles de formulário sempre escuros */
+input,
+select,
+textarea {
+  color-scheme: dark;
+}
+select option {
+  background: var(--color-noir-800);
+  color: var(--color-ink);
+}
+
+/* ===================== AMBIENTE / PALCO (do site antigo) ===================== */
+/* camada de luzes/fumaça/dançarina, sempre atrás do conteúdo */
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: #0a0709;
+}
+/* 1) silhueta da mulher dançando (licença livre Pexels) */
+.dancer-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.96;
+  filter: contrast(1.25) saturate(1.12) brightness(0.6);
+}
+/* 2) fumaça em vídeo, soma luz por cima (só desktop, é pesada) */
+.smoke-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: screen;
+  opacity: 0.5;
+}
+/* 3) névoa em CSS — base leve de fumaça (vale até sem o vídeo) */
+.fog {
+  position: absolute;
+  inset: -12%;
+  mix-blend-mode: screen;
+  opacity: 0.55;
+  filter: blur(34px);
+  background:
+    radial-gradient(40% 30% at 20% 72%, rgba(150, 120, 130, 0.22), transparent 60%),
+    radial-gradient(46% 34% at 76% 64%, rgba(170, 130, 140, 0.18), transparent 60%),
+    radial-gradient(52% 42% at 50% 88%, rgba(130, 100, 110, 0.18), transparent 60%);
+  animation: fog 26s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes fog {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(4%, -3%) scale(1.08); }
+}
+/* 4) escurecimento p/ o texto ficar legível (mais leve no meio, mostra a silhueta) */
+.stage-tint {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(8, 5, 7, 0.88) 0%, rgba(8, 5, 7, 0.55) 30%, rgba(8, 5, 7, 0.6) 64%, rgba(8, 5, 7, 0.96) 100%),
+    radial-gradient(120% 85% at 50% 38%, transparent 28%, rgba(8, 5, 7, 0.8) 100%);
+}
+/* 5) banho de luz dourada ambiente */
+.gold-wash {
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(92% 70% at 50% 24%, rgba(201, 162, 78, 0.42), transparent 62%),
+    radial-gradient(80% 60% at 50% 104%, rgba(150, 110, 40, 0.5), transparent 60%);
+}
+/* 6) orbs de luz dourados */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(85px);
+  mix-blend-mode: screen;
+  will-change: transform, opacity;
+}
+.orb.a {
+  width: 440px;
+  height: 440px;
+  background: radial-gradient(circle, #c9a24e, transparent 66%);
+  top: -90px;
+  left: -60px;
+  animation: drift1 17s ease-in-out infinite;
+}
+.orb.b {
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle, #8a6d2f, transparent 66%);
+  bottom: -90px;
+  right: -50px;
+  animation: drift2 21s ease-in-out infinite;
+}
+@keyframes drift1 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.55; }
+  50% { transform: translate(50px, 40px) scale(1.18); opacity: 0.85; }
+}
+@keyframes drift2 {
+  0%, 100% { transform: translate(0, 0) scale(1.05); opacity: 0.5; }
+  50% { transform: translate(-40px, -30px) scale(0.9); opacity: 0.78; }
+}
+@media (max-width: 760px) {
+  .smoke-video { display: none; } /* economiza dados móveis */
+  .dancer-video { opacity: 0.85; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fog, .orb { animation: none; }
+}
+/* conteúdo acima do ambiente */
+main, header, footer {
+  position: relative;
+  z-index: 1;
+}
+
+/* barra de rolagem discreta dourada */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(201, 162, 78, 0.4) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(201, 162, 78, 0.35);
+  border-radius: 99px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(201, 162, 78, 0.6);
+}

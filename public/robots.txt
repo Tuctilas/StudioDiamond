@@ -1,0 +1,7 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+Disallow: /painel
+Disallow: /auth
+
+Sitemap: /sitemap.xml
