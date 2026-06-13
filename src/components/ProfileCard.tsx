@@ -1,11 +1,13 @@
 import { Link } from '@tanstack/react-router'
 
 import { cidadePorSlug } from '#/lib/cidades'
+import { PLANO_SELO, planoPorSlug } from '#/lib/planos'
 import { fmtBRL } from '#/lib/supabase'
 import type { ProfileComCapa } from '#/lib/queries'
 
 export function ProfileCard({ p }: { p: ProfileComCapa }) {
   const cidade = p.cidade ? cidadePorSlug(p.cidade) : undefined
+  const plano = planoPorSlug(p.plano)
   return (
     <Link
       to="/acompanhantes/$slug"
@@ -25,10 +27,18 @@ export function ProfileCard({ p }: { p: ProfileComCapa }) {
             [ foto ]
           </div>
         )}
-        {p.destaque && (
-          <span className="absolute right-3 top-3 rounded-full bg-gradient-to-r from-gold-300 to-gold-500 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-noir-950">
-            Destaque
+        {plano ? (
+          <span
+            className={`absolute right-3 top-3 rounded-full bg-gradient-to-r px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${PLANO_SELO[plano.slug]}`}
+          >
+            {plano.nome}
           </span>
+        ) : (
+          p.destaque && (
+            <span className="absolute right-3 top-3 rounded-full bg-gradient-to-r from-gold-300 to-gold-500 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-noir-950">
+              Destaque
+            </span>
+          )
         )}
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-noir-950/95 via-noir-950/55 to-transparent p-4 pt-12">
           <div className="font-display text-xl text-gold-300">{p.nome_exibicao}</div>

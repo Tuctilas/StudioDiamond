@@ -1,14 +1,18 @@
 import { Link, createFileRoute, notFound } from '@tanstack/react-router'
 
+import { ElogiosModelo } from '#/components/ElogiosModelo'
+import { VipArea } from '#/components/VipArea'
 import { cidadePorSlug } from '#/lib/cidades'
-import { getProfileBySlug } from '#/lib/queries'
-import { fmtBRL, waLink } from '#/lib/supabase'
+import { PLANO_SELO, planoPorSlug } from '#/lib/planos'
+import { getElogiosPublicos, getProfileBySlug } from '#/lib/queries'
+import { GRUPOS_CARAC, fmtBRL, waLink } from '#/lib/supabase'
 
 export const Route = createFileRoute('/acompanhantes/$slug')({
   loader: async ({ params }) => {
     const perfil = await getProfileBySlug(params.slug)
     if (!perfil) throw notFound()
-    return perfil
+    const elogios = await getElogiosPublicos(perfil.id)
+    return { ...perfil, elogios }
   },
   head: ({ loaderData }) => {
     if (!loaderData) return { meta: [{ title: 'Perfil — Studio Diamond' }] }
@@ -60,11 +64,25 @@ function Perfil() {
   const cidade = p.cidade ? cidadePorSlug(p.cidade) : undefined
   const capa = p.fotos.find((f) => f.is_capa) ?? p.fotos[0]
   const whats = waLink(p.whatsapp ?? p.telefone, p.nome_exibicao)
+  const plano = planoPorSlug(p.plano)
 
   const specs: Array<[string, string]> = []
   if (p.idade) specs.push(['Idade', `${p.idade} anos`])
   if (p.altura) specs.push(['Altura', p.altura])
   if (p.peso) specs.push(['Peso', p.peso])
+  if (p.manequim) specs.push(['Manequim', p.manequim])
+  if (p.biotipo) specs.push(['Biotipo', p.biotipo])
+  if (p.cabelo) specs.push(['Cabelos', p.cabelo])
+  if (p.olhos) specs.push(['Olhos', p.olhos])
+  if (p.seios) specs.push(['Seios', p.seios])
+  if (p.cintura) specs.push(['Cintura', p.cintura])
+  if (p.quadril) specs.push(['Quadril', p.quadril])
+  if (p.pes) specs.push(['Pés', p.pes])
+  if (p.tatuagem) specs.push(['Tatuagem', p.tatuagem])
+  if (p.piercing) specs.push(['Piercing', p.piercing])
+  if (p.fumante) specs.push(['Fumante', p.fumante])
+  if (p.nivel_cultural) specs.push(['Nível cultural', p.nivel_cultural])
+  if (p.signo) specs.push(['Signo', p.signo])
   if (cidade) specs.push(['Cidade', `${cidade.nome} · ${cidade.estado}`])
   if (p.bairro) specs.push(['Bairro', p.bairro])
   for (const c of p.categorias) specs.push(['Categoria', c.nome])
@@ -89,16 +107,37 @@ function Perfil() {
 
         {/* INFO */}
         <div>
-          <h1 className="font-display text-4xl text-gold-300">{p.nome_exibicao}</h1>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="font-display text-4xl text-gold-300">{p.nome_exibicao}</h1>
+            {plano && (
+              <span
+                className={`rounded-full bg-gradient-to-r px-3 py-0.5 text-xs font-bold uppercase tracking-wider ${PLANO_SELO[plano.slug]}`}
+              >
+                {plano.nome}
+              </span>
+            )}
+          </div>
           {cidade && (
             <div className="mt-1 text-sm text-muted">
               📍 {cidade.nome} · {cidade.estado}
               {p.bairro ? ` — ${p.bairro}` : ''}
             </div>
           )}
-          {p.preco_hora != null && (
-            <div className="mt-4 font-display text-2xl">
-              {fmtBRL(p.preco_hora)} <span className="text-sm text-muted">/ hora</span>
+          {(p.preco_hora != null || p.preco_2h != null || p.preco_pernoite) && (
+            <div className="mt-4 flex flex-wrap items-end gap-x-6 gap-y-1">
+              {p.preco_hora != null && (
+                <div className="font-display text-2xl">
+                  {fmtBRL(p.preco_hora)} <span className="text-sm text-muted">/ 1h</span>
+                </div>
+              )}
+              {p.preco_2h != null && (
+                <div className="font-display text-xl text-muted">
+                  {fmtBRL(p.preco_2h)} <span className="text-sm">/ 2h</span>
+                </div>
+              )}
+              {p.preco_pernoite && (
+                <div className="text-sm text-muted">Pernoite: {p.preco_pernoite}</div>
+              )}
             </div>
           )}
           {p.bio && <p className="mt-4 max-w-xl whitespace-pre-line text-sm leading-relaxed text-muted">{p.bio}</p>}
@@ -128,8 +167,69 @@ function Perfil() {
               ))}
             </div>
           )}
+
+          {/* FETICHES */}
+          {p.fetiches.length > 0 && (
+            <div className="mt-8">
+              <div className="mb-2 text-[10px] uppercase tracking-wider text-muted">Fetiches</div>
+              <div className="flex flex-wrap gap-2">
+                {p.fetiches.map((f) => (
+                  <Link
+                    key={f.id}
+                    to="/acompanhantes"
+                    search={{ fetiche: [f.slug] }}
+                    className="rounded-full border border-gold-500/40 bg-black px-3 py-1 text-sm text-gold-300 transition hover:bg-gold-500/10"
+                  >
+                    {f.nome}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* GRUPOS DE CARACTERÍSTICAS */}
+          {GRUPOS_CARAC.map(({ grupo, titulo }) => {
+            const itens = p.caracteristicas.filter((c) => c.grupo === grupo)
+            if (!itens.length) return null
+            return (
+              <div key={grupo} className="mt-8">
+                <div className="mb-2 text-[10px] uppercase tracking-wider text-muted">{titulo}</div>
+                <div className="flex flex-wrap gap-2">
+                  {itens.map((c) => (
+                    <span
+                      key={c.id}
+                      className="rounded-full border border-line bg-noir-800 px-3 py-1 text-sm text-ink"
+                    >
+                      {c.nome}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+
+          {/* OBSERVAÇÕES */}
+          {p.observacoes && (
+            <div className="mt-8">
+              <div className="mb-2 text-[10px] uppercase tracking-wider text-muted">
+                Observações
+              </div>
+              <p className="whitespace-pre-line text-sm leading-relaxed text-muted">
+                {p.observacoes}
+              </p>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* ÁREA VIP (restrita) — acima das fotos públicas */}
+      <VipArea
+        profileId={p.id}
+        nome={p.nome_exibicao}
+        vipAtivo={p.vip_ativo}
+        vipPreco={p.vip_preco}
+        donoUserId={p.user_id}
+      />
 
       {/* GALERIA */}
       {p.fotos.length > 1 && (
@@ -148,6 +248,9 @@ function Perfil() {
           </div>
         </section>
       )}
+
+      {/* ELOGIOS DESTA MODELO */}
+      <ElogiosModelo profileId={p.id} nome={p.nome_exibicao} iniciais={p.elogios} />
     </div>
   )
 }

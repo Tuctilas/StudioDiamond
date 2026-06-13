@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 
+import { planoPorSlug } from '#/lib/planos'
 import { supabase } from '#/lib/supabase'
 import type { Profile } from '#/lib/supabase'
 import { useAuth } from '#/lib/useAuth'
@@ -66,17 +67,45 @@ function Dashboard() {
   }
 
   const st = STATUS_LABEL[perfil.status] ?? STATUS_LABEL.pending
+  const plano = planoPorSlug(perfil.plano)
 
   return (
     <div>
       <h1 className="font-display text-3xl">Olá, {perfil.nome_exibicao}</h1>
       <div className={`mt-2 text-sm font-semibold ${st.cor}`}>{st.txt}</div>
+
+      <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-line bg-noir-900 px-5 py-3 text-sm">
+        <span className="text-muted">Plano de vitrine:</span>
+        {plano ? (
+          <span className="font-display text-gold-300">{plano.nome}</span>
+        ) : (
+          <span className="text-muted">Nenhum ativo</span>
+        )}
+        <Link to="/anuncie" className="ml-auto text-gold-400 underline">
+          {plano ? 'Trocar plano' : 'Contratar um plano →'}
+        </Link>
+      </div>
       {perfil.status === 'pending' && (
         <p className="mt-1 text-xs text-muted">
           A moderação confere seu documento e aprova o anúncio. Você será
           notificada por e-mail.
         </p>
       )}
+      <div className="mt-1 text-xs">
+        {perfil.verificado ? (
+          <span className="text-emerald-400">✓ Conta verificada</span>
+        ) : perfil.termos_aceitos_em ? (
+          <span className="text-muted">Verificação em análise pela moderação.</span>
+        ) : (
+          <span className="text-yellow-400">
+            Pendente: envie documento e vídeo e aceite os termos em{' '}
+            <Link to="/painel/perfil" className="underline">
+              Meu perfil
+            </Link>
+            .
+          </span>
+        )}
+      </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         <Link

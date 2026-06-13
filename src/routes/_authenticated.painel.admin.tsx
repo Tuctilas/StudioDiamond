@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import { Navigate, createFileRoute } from '@tanstack/react-router'
 
 import { cidadePorSlug } from '#/lib/cidades'
+import { PLANOS } from '#/lib/planos'
 import { supabase } from '#/lib/supabase'
-import type { Profile } from '#/lib/supabase'
+import type { PlanoSlug, Profile } from '#/lib/supabase'
 import { useAuth } from '#/lib/useAuth'
 
 export const Route = createFileRoute('/_authenticated/painel/admin')({
@@ -38,6 +39,20 @@ function Moderacao() {
   async function alternarDestaque(p: Profile) {
     await supabase.from('profiles').update({ destaque: !p.destaque }).eq('id', p.id)
     setLista((l) => l.map((x) => (x.id === p.id ? { ...x, destaque: !x.destaque } : x)))
+  }
+  async function definirPlano(p: Profile, plano: PlanoSlug | null) {
+    await supabase.from('profiles').update({ plano }).eq('id', p.id)
+    setLista((l) => l.map((x) => (x.id === p.id ? { ...x, plano } : x)))
+  }
+  async function alternarVerificado(p: Profile) {
+    await supabase.from('profiles').update({ verificado: !p.verificado }).eq('id', p.id)
+    setLista((l) => l.map((x) => (x.id === p.id ? { ...x, verificado: !x.verificado } : x)))
+  }
+  // Abre um arquivo do bucket privado via URL assinada (válida 2 min).
+  async function abrirArquivo(path: string | null) {
+    if (!path) return
+    const { data } = await supabase.storage.from('verificacao').createSignedUrl(path, 120)
+    if (data?.signedUrl) window.open(data.signedUrl, '_blank', 'noopener')
   }
   async function excluir(p: Profile) {
     if (!confirm(`Excluir "${p.nome_exibicao}" definitivamente?`)) return
@@ -74,8 +89,9 @@ function Moderacao() {
           return (
             <div
               key={p.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-noir-900 px-5 py-4"
+              className="rounded-xl border border-line bg-noir-900 px-5 py-4"
             >
+              <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <div className="font-display text-lg">
                   {p.nome_exibicao}
@@ -98,6 +114,19 @@ function Moderacao() {
                 )}
                 {aba === 'active' && (
                   <>
+                    <select
+                      value={p.plano ?? ''}
+                      onChange={(e) => definirPlano(p, (e.target.value || null) as PlanoSlug | null)}
+                      className="rounded-lg border border-gold-500/50 bg-noir-800 px-2 py-1.5 text-gold-300"
+                      title="Plano de vitrine"
+                    >
+                      <option value="">Sem plano</option>
+                      {PLANOS.map((pl) => (
+                        <option key={pl.slug} value={pl.slug}>
+                          {pl.nome}
+                        </option>
+                      ))}
+                    </select>
                     <button
                       onClick={() => alternarDestaque(p)}
                       className="rounded-lg border border-gold-500/50 px-3 py-1.5 text-gold-400 hover:bg-gold-500/10"
@@ -117,6 +146,41 @@ function Moderacao() {
                   className="rounded-lg border border-red-500/40 px-3 py-1.5 text-red-400 hover:bg-red-500/10"
                 >
                   Excluir
+                </button>
+              </div>
+              </div>
+
+              {/* verificação */}
+              <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-line pt-3 text-xs">
+                <span className={p.verificado ? 'text-emerald-400' : 'text-muted'}>
+                  {p.verificado ? '✓ Verificada' : 'Não verificada'}
+                </span>
+                {p.termos_aceitos_em && (
+                  <span className="text-muted">
+                    termos: {new Date(p.termos_aceitos_em).toLocaleDateString('pt-BR')}
+                  </span>
+                )}
+                {p.documento_url && (
+                  <button
+                    onClick={() => abrirArquivo(p.documento_url)}
+                    className="text-gold-400 underline"
+                  >
+                    ver documento
+                  </button>
+                )}
+                {p.video_verificacao_url && (
+                  <button
+                    onClick={() => abrirArquivo(p.video_verificacao_url)}
+                    className="text-gold-400 underline"
+                  >
+                    ver vídeo
+                  </button>
+                )}
+                <button
+                  onClick={() => alternarVerificado(p)}
+                  className="ml-auto rounded-lg border border-emerald-500/40 px-3 py-1.5 text-emerald-400 hover:bg-emerald-500/10"
+                >
+                  {p.verificado ? 'Desverificar' : 'Marcar verificada'}
                 </button>
               </div>
             </div>

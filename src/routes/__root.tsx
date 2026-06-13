@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { HeadContent, Outlet, Scripts, createRootRoute } from '@tanstack/react-router'
 
 import { AgeGate } from '#/components/AgeGate'
@@ -19,13 +20,37 @@ export const Route = createRootRoute({
       },
       { name: 'rating', content: 'adult' },
     ],
-    links: [{ rel: 'stylesheet', href: appCss }],
+    links: [
+      { rel: 'stylesheet', href: appCss },
+      { rel: 'icon', href: '/favicon.ico', sizes: '48x48' },
+      { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32.png' },
+      { rel: 'apple-touch-icon', href: '/logo192.png' },
+      { rel: 'manifest', href: '/manifest.json' },
+    ],
   }),
   shellComponent: RootDocument,
   component: RootLayout,
 })
 
 function RootLayout() {
+  // Dificulta o download das mídias: bloqueia botão direito e arrastar em img/vídeo.
+  useEffect(() => {
+    const isMedia = (t: EventTarget | null) =>
+      t instanceof Element && (t.tagName === 'IMG' || t.tagName === 'VIDEO')
+    const onContext = (e: MouseEvent) => {
+      if (isMedia(e.target)) e.preventDefault()
+    }
+    const onDrag = (e: DragEvent) => {
+      if (isMedia(e.target)) e.preventDefault()
+    }
+    document.addEventListener('contextmenu', onContext)
+    document.addEventListener('dragstart', onDrag)
+    return () => {
+      document.removeEventListener('contextmenu', onContext)
+      document.removeEventListener('dragstart', onDrag)
+    }
+  }, [])
+
   return (
     <>
       <Ambient />

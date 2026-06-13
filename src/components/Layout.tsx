@@ -1,13 +1,15 @@
 import { Link } from '@tanstack/react-router'
+import { useState } from 'react'
+import { Menu, X } from 'lucide-react'
 
 export function Header() {
+  const [open, setOpen] = useState(false)
+
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-noir-950/90 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-        <Link to="/" className="flex items-center gap-2">
-          {/* logo antigo: silhueta + S + STUDIO (dourado transparente) */}
-          <img src="/media/logo-mark.png" alt="Studio" className="h-11 w-auto" />
-          <span className="font-display text-xl tracking-[0.18em] text-gold-400">DIAMOND</span>
+      <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-5">
+        <Link to="/" className="flex items-center" onClick={() => setOpen(false)}>
+          <img src="/logo-v11.png" alt="Studio Diamond" className="h-14 w-auto sm:h-16" />
         </Link>
         <nav className="flex items-center gap-5 text-sm">
           <Link
@@ -17,13 +19,34 @@ export function Header() {
             Acompanhantes
           </Link>
           <Link
-            to="/auth"
+            to="/anuncie"
             className="rounded-full border border-gold-500/40 px-4 py-1.5 text-gold-400 transition hover:bg-gold-500/10"
           >
             Anunciar
           </Link>
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-label={open ? 'Fechar menu' : 'Abrir menu'}
+            aria-expanded={open}
+            className="text-muted transition hover:text-ink sm:hidden"
+          >
+            {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
         </nav>
       </div>
+
+      {open && (
+        <nav className="border-t border-line bg-noir-950/95 px-5 py-3 text-sm sm:hidden">
+          <Link
+            to="/acompanhantes"
+            onClick={() => setOpen(false)}
+            className="block py-2 text-muted transition hover:text-ink"
+          >
+            Acompanhantes
+          </Link>
+        </nav>
+      )}
     </header>
   )
 }

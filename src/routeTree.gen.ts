@@ -12,7 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
+import { Route as ElogiosRouteImport } from './routes/elogios'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AnuncieRouteImport } from './routes/anuncie'
 import { Route as AcompanhantesRouteImport } from './routes/acompanhantes'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
@@ -20,8 +22,13 @@ import { Route as AcompanhantesIndexRouteImport } from './routes/acompanhantes.i
 import { Route as CidadeCidadeRouteImport } from './routes/cidade.$cidade'
 import { Route as AcompanhantesSlugRouteImport } from './routes/acompanhantes.$slug'
 import { Route as AuthenticatedPainelIndexRouteImport } from './routes/_authenticated.painel.index'
+import { Route as AuthenticatedPainelVipRouteImport } from './routes/_authenticated.painel.vip'
+import { Route as AuthenticatedPainelSaquesRouteImport } from './routes/_authenticated.painel.saques'
 import { Route as AuthenticatedPainelPerfilRouteImport } from './routes/_authenticated.painel.perfil'
 import { Route as AuthenticatedPainelFotosRouteImport } from './routes/_authenticated.painel.fotos'
+import { Route as AuthenticatedPainelElogiosRouteImport } from './routes/_authenticated.painel.elogios'
+import { Route as AuthenticatedPainelCarteiraRouteImport } from './routes/_authenticated.painel.carteira'
+import { Route as AuthenticatedPainelAssinaturasRouteImport } from './routes/_authenticated.painel.assinaturas'
 import { Route as AuthenticatedPainelAdminRouteImport } from './routes/_authenticated.painel.admin'
 
 const TermosRoute = TermosRouteImport.update({
@@ -39,9 +46,19 @@ const PrivacidadeRoute = PrivacidadeRouteImport.update({
   path: '/privacidade',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ElogiosRoute = ElogiosRouteImport.update({
+  id: '/elogios',
+  path: '/elogios',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnuncieRoute = AnuncieRouteImport.update({
+  id: '/anuncie',
+  path: '/anuncie',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AcompanhantesRoute = AcompanhantesRouteImport.update({
@@ -79,6 +96,17 @@ const AuthenticatedPainelIndexRoute =
     path: '/painel/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedPainelVipRoute = AuthenticatedPainelVipRouteImport.update({
+  id: '/painel/vip',
+  path: '/painel/vip',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedPainelSaquesRoute =
+  AuthenticatedPainelSaquesRouteImport.update({
+    id: '/painel/saques',
+    path: '/painel/saques',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedPainelPerfilRoute =
   AuthenticatedPainelPerfilRouteImport.update({
     id: '/painel/perfil',
@@ -91,6 +119,24 @@ const AuthenticatedPainelFotosRoute =
     path: '/painel/fotos',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedPainelElogiosRoute =
+  AuthenticatedPainelElogiosRouteImport.update({
+    id: '/painel/elogios',
+    path: '/painel/elogios',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedPainelCarteiraRoute =
+  AuthenticatedPainelCarteiraRouteImport.update({
+    id: '/painel/carteira',
+    path: '/painel/carteira',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedPainelAssinaturasRoute =
+  AuthenticatedPainelAssinaturasRouteImport.update({
+    id: '/painel/assinaturas',
+    path: '/painel/assinaturas',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedPainelAdminRoute =
   AuthenticatedPainelAdminRouteImport.update({
     id: '/painel/admin',
@@ -101,7 +147,9 @@ const AuthenticatedPainelAdminRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/acompanhantes': typeof AcompanhantesRouteWithChildren
+  '/anuncie': typeof AnuncieRoute
   '/auth': typeof AuthRoute
+  '/elogios': typeof ElogiosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
@@ -109,13 +157,20 @@ export interface FileRoutesByFullPath {
   '/cidade/$cidade': typeof CidadeCidadeRoute
   '/acompanhantes/': typeof AcompanhantesIndexRoute
   '/painel/admin': typeof AuthenticatedPainelAdminRoute
+  '/painel/assinaturas': typeof AuthenticatedPainelAssinaturasRoute
+  '/painel/carteira': typeof AuthenticatedPainelCarteiraRoute
+  '/painel/elogios': typeof AuthenticatedPainelElogiosRoute
   '/painel/fotos': typeof AuthenticatedPainelFotosRoute
   '/painel/perfil': typeof AuthenticatedPainelPerfilRoute
+  '/painel/saques': typeof AuthenticatedPainelSaquesRoute
+  '/painel/vip': typeof AuthenticatedPainelVipRoute
   '/painel/': typeof AuthenticatedPainelIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/anuncie': typeof AnuncieRoute
   '/auth': typeof AuthRoute
+  '/elogios': typeof ElogiosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
@@ -123,8 +178,13 @@ export interface FileRoutesByTo {
   '/cidade/$cidade': typeof CidadeCidadeRoute
   '/acompanhantes': typeof AcompanhantesIndexRoute
   '/painel/admin': typeof AuthenticatedPainelAdminRoute
+  '/painel/assinaturas': typeof AuthenticatedPainelAssinaturasRoute
+  '/painel/carteira': typeof AuthenticatedPainelCarteiraRoute
+  '/painel/elogios': typeof AuthenticatedPainelElogiosRoute
   '/painel/fotos': typeof AuthenticatedPainelFotosRoute
   '/painel/perfil': typeof AuthenticatedPainelPerfilRoute
+  '/painel/saques': typeof AuthenticatedPainelSaquesRoute
+  '/painel/vip': typeof AuthenticatedPainelVipRoute
   '/painel': typeof AuthenticatedPainelIndexRoute
 }
 export interface FileRoutesById {
@@ -132,7 +192,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/acompanhantes': typeof AcompanhantesRouteWithChildren
+  '/anuncie': typeof AnuncieRoute
   '/auth': typeof AuthRoute
+  '/elogios': typeof ElogiosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
@@ -140,8 +202,13 @@ export interface FileRoutesById {
   '/cidade/$cidade': typeof CidadeCidadeRoute
   '/acompanhantes/': typeof AcompanhantesIndexRoute
   '/_authenticated/painel/admin': typeof AuthenticatedPainelAdminRoute
+  '/_authenticated/painel/assinaturas': typeof AuthenticatedPainelAssinaturasRoute
+  '/_authenticated/painel/carteira': typeof AuthenticatedPainelCarteiraRoute
+  '/_authenticated/painel/elogios': typeof AuthenticatedPainelElogiosRoute
   '/_authenticated/painel/fotos': typeof AuthenticatedPainelFotosRoute
   '/_authenticated/painel/perfil': typeof AuthenticatedPainelPerfilRoute
+  '/_authenticated/painel/saques': typeof AuthenticatedPainelSaquesRoute
+  '/_authenticated/painel/vip': typeof AuthenticatedPainelVipRoute
   '/_authenticated/painel/': typeof AuthenticatedPainelIndexRoute
 }
 export interface FileRouteTypes {
@@ -149,7 +216,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/acompanhantes'
+    | '/anuncie'
     | '/auth'
+    | '/elogios'
     | '/privacidade'
     | '/sitemap.xml'
     | '/termos'
@@ -157,13 +226,20 @@ export interface FileRouteTypes {
     | '/cidade/$cidade'
     | '/acompanhantes/'
     | '/painel/admin'
+    | '/painel/assinaturas'
+    | '/painel/carteira'
+    | '/painel/elogios'
     | '/painel/fotos'
     | '/painel/perfil'
+    | '/painel/saques'
+    | '/painel/vip'
     | '/painel/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/anuncie'
     | '/auth'
+    | '/elogios'
     | '/privacidade'
     | '/sitemap.xml'
     | '/termos'
@@ -171,15 +247,22 @@ export interface FileRouteTypes {
     | '/cidade/$cidade'
     | '/acompanhantes'
     | '/painel/admin'
+    | '/painel/assinaturas'
+    | '/painel/carteira'
+    | '/painel/elogios'
     | '/painel/fotos'
     | '/painel/perfil'
+    | '/painel/saques'
+    | '/painel/vip'
     | '/painel'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/acompanhantes'
+    | '/anuncie'
     | '/auth'
+    | '/elogios'
     | '/privacidade'
     | '/sitemap.xml'
     | '/termos'
@@ -187,8 +270,13 @@ export interface FileRouteTypes {
     | '/cidade/$cidade'
     | '/acompanhantes/'
     | '/_authenticated/painel/admin'
+    | '/_authenticated/painel/assinaturas'
+    | '/_authenticated/painel/carteira'
+    | '/_authenticated/painel/elogios'
     | '/_authenticated/painel/fotos'
     | '/_authenticated/painel/perfil'
+    | '/_authenticated/painel/saques'
+    | '/_authenticated/painel/vip'
     | '/_authenticated/painel/'
   fileRoutesById: FileRoutesById
 }
@@ -196,7 +284,9 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AcompanhantesRoute: typeof AcompanhantesRouteWithChildren
+  AnuncieRoute: typeof AnuncieRoute
   AuthRoute: typeof AuthRoute
+  ElogiosRoute: typeof ElogiosRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermosRoute: typeof TermosRoute
@@ -226,11 +316,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacidadeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/elogios': {
+      id: '/elogios'
+      path: '/elogios'
+      fullPath: '/elogios'
+      preLoaderRoute: typeof ElogiosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/anuncie': {
+      id: '/anuncie'
+      path: '/anuncie'
+      fullPath: '/anuncie'
+      preLoaderRoute: typeof AnuncieRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/acompanhantes': {
@@ -282,6 +386,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPainelIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/painel/vip': {
+      id: '/_authenticated/painel/vip'
+      path: '/painel/vip'
+      fullPath: '/painel/vip'
+      preLoaderRoute: typeof AuthenticatedPainelVipRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/painel/saques': {
+      id: '/_authenticated/painel/saques'
+      path: '/painel/saques'
+      fullPath: '/painel/saques'
+      preLoaderRoute: typeof AuthenticatedPainelSaquesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/painel/perfil': {
       id: '/_authenticated/painel/perfil'
       path: '/painel/perfil'
@@ -296,6 +414,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPainelFotosRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/painel/elogios': {
+      id: '/_authenticated/painel/elogios'
+      path: '/painel/elogios'
+      fullPath: '/painel/elogios'
+      preLoaderRoute: typeof AuthenticatedPainelElogiosRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/painel/carteira': {
+      id: '/_authenticated/painel/carteira'
+      path: '/painel/carteira'
+      fullPath: '/painel/carteira'
+      preLoaderRoute: typeof AuthenticatedPainelCarteiraRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/painel/assinaturas': {
+      id: '/_authenticated/painel/assinaturas'
+      path: '/painel/assinaturas'
+      fullPath: '/painel/assinaturas'
+      preLoaderRoute: typeof AuthenticatedPainelAssinaturasRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/painel/admin': {
       id: '/_authenticated/painel/admin'
       path: '/painel/admin'
@@ -308,15 +447,25 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteChildren {
   AuthenticatedPainelAdminRoute: typeof AuthenticatedPainelAdminRoute
+  AuthenticatedPainelAssinaturasRoute: typeof AuthenticatedPainelAssinaturasRoute
+  AuthenticatedPainelCarteiraRoute: typeof AuthenticatedPainelCarteiraRoute
+  AuthenticatedPainelElogiosRoute: typeof AuthenticatedPainelElogiosRoute
   AuthenticatedPainelFotosRoute: typeof AuthenticatedPainelFotosRoute
   AuthenticatedPainelPerfilRoute: typeof AuthenticatedPainelPerfilRoute
+  AuthenticatedPainelSaquesRoute: typeof AuthenticatedPainelSaquesRoute
+  AuthenticatedPainelVipRoute: typeof AuthenticatedPainelVipRoute
   AuthenticatedPainelIndexRoute: typeof AuthenticatedPainelIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedPainelAdminRoute: AuthenticatedPainelAdminRoute,
+  AuthenticatedPainelAssinaturasRoute: AuthenticatedPainelAssinaturasRoute,
+  AuthenticatedPainelCarteiraRoute: AuthenticatedPainelCarteiraRoute,
+  AuthenticatedPainelElogiosRoute: AuthenticatedPainelElogiosRoute,
   AuthenticatedPainelFotosRoute: AuthenticatedPainelFotosRoute,
   AuthenticatedPainelPerfilRoute: AuthenticatedPainelPerfilRoute,
+  AuthenticatedPainelSaquesRoute: AuthenticatedPainelSaquesRoute,
+  AuthenticatedPainelVipRoute: AuthenticatedPainelVipRoute,
   AuthenticatedPainelIndexRoute: AuthenticatedPainelIndexRoute,
 }
 
@@ -342,7 +491,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AcompanhantesRoute: AcompanhantesRouteWithChildren,
+  AnuncieRoute: AnuncieRoute,
   AuthRoute: AuthRoute,
+  ElogiosRoute: ElogiosRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermosRoute: TermosRoute,

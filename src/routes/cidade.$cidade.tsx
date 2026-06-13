@@ -8,7 +8,7 @@ export const Route = createFileRoute('/cidade/$cidade')({
   loader: async ({ params }) => {
     const cidade = cidadePorSlug(params.cidade)
     if (!cidade) throw notFound()
-    const perfis = await getProfiles({ cidade: cidade.slug })
+    const perfis = await getProfiles({ cidade: [cidade.slug] })
     return { cidade, perfis }
   },
   head: ({ loaderData }) => {

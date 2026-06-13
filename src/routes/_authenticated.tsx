@@ -52,14 +52,51 @@ function AuthGate() {
           >
             Fotos
           </Link>
+          <Link
+            to="/painel/vip"
+            activeProps={{ className: 'border-gold-500 text-gold-300' }}
+            className="rounded-full border border-line px-4 py-1.5 text-muted transition hover:text-ink"
+          >
+            Conteúdo VIP
+          </Link>
+          <Link
+            to="/painel/carteira"
+            activeProps={{ className: 'border-gold-500 text-gold-300' }}
+            className="rounded-full border border-line px-4 py-1.5 text-muted transition hover:text-ink"
+          >
+            Carteira
+          </Link>
+          <Link
+            to="/painel/assinaturas"
+            activeProps={{ className: 'border-gold-500 text-gold-300' }}
+            className="rounded-full border border-line px-4 py-1.5 text-muted transition hover:text-ink"
+          >
+            Minhas assinaturas
+          </Link>
           {isAdmin && (
-            <Link
-              to="/painel/admin"
-              activeProps={{ className: 'border-gold-500 text-gold-300' }}
-              className="rounded-full border border-gold-500/40 px-4 py-1.5 text-gold-400 transition hover:bg-gold-500/10"
-            >
-              Moderação
-            </Link>
+            <>
+              <Link
+                to="/painel/admin"
+                activeProps={{ className: 'border-gold-500 text-gold-300' }}
+                className="rounded-full border border-gold-500/40 px-4 py-1.5 text-gold-400 transition hover:bg-gold-500/10"
+              >
+                Moderação
+              </Link>
+              <Link
+                to="/painel/elogios"
+                activeProps={{ className: 'border-gold-500 text-gold-300' }}
+                className="rounded-full border border-gold-500/40 px-4 py-1.5 text-gold-400 transition hover:bg-gold-500/10"
+              >
+                Elogios
+              </Link>
+              <Link
+                to="/painel/saques"
+                activeProps={{ className: 'border-gold-500 text-gold-300' }}
+                className="rounded-full border border-gold-500/40 px-4 py-1.5 text-gold-400 transition hover:bg-gold-500/10"
+              >
+                Saques
+              </Link>
+            </>
           )}
         </nav>
         <button onClick={sair} className="text-xs text-muted underline hover:text-ink">

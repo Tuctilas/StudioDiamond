@@ -163,6 +163,16 @@ main, header, footer {
   z-index: 1;
 }
 
+/* proteção de mídia: dificulta arrastar / salvar / baixar fotos e vídeos */
+img,
+video {
+  -webkit-user-drag: none;
+  -moz-user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none; /* iOS: remove o menu "Salvar imagem" no toque longo */
+}
+
 /* barra de rolagem discreta dourada */
 * {
   scrollbar-width: thin;
