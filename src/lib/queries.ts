@@ -124,18 +124,6 @@ export async function getTotalCadastros(): Promise<number> {
   return typeof data === 'number' ? data : 0
 }
 
-/** Lista enxuta de modelos ativas (para o seletor opcional do elogio). */
-export async function getProfilesParaSelect(): Promise<
-  Array<Pick<Profile, 'id' | 'nome_exibicao'>>
-> {
-  const { data } = await supabase
-    .from('profiles')
-    .select('id, nome_exibicao')
-    .eq('status', 'active')
-    .order('nome_exibicao')
-  return data ?? []
-}
-
 /** Elogios aprovados (view pública, sem e-mail). Opcionalmente de uma modelo. */
 export async function getElogiosPublicos(profileId?: string): Promise<ElogioPublico[]> {
   let q = supabase

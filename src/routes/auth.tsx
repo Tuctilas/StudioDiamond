@@ -3,7 +3,13 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 
 import { supabase } from '#/lib/supabase'
 
+type Papel = 'advertiser' | 'cliente'
+
 export const Route = createFileRoute('/auth')({
+  validateSearch: (s: Record<string, unknown>): { tipo?: Papel } => ({
+    tipo:
+      s.tipo === 'cliente' ? 'cliente' : s.tipo === 'advertiser' ? 'advertiser' : undefined,
+  }),
   head: () => ({
     meta: [
       { title: 'Entrar ou anunciar — Studio Diamond' },
@@ -15,7 +21,9 @@ export const Route = createFileRoute('/auth')({
 
 function Auth() {
   const navigate = useNavigate()
-  const [modo, setModo] = useState<'login' | 'cadastro'>('login')
+  const { tipo } = Route.useSearch()
+  const [modo, setModo] = useState<'login' | 'cadastro'>(tipo ? 'cadastro' : 'login')
+  const [papel, setPapel] = useState<Papel>(tipo ?? 'advertiser')
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
   const [aceite, setAceite] = useState(false)
@@ -39,7 +47,11 @@ function Auth() {
         const { error } = await supabase.auth.signInWithPassword({ email, password: senha })
         if (error) throw error
       } else {
-        const { error, data } = await supabase.auth.signUp({ email, password: senha })
+        const { error, data } = await supabase.auth.signUp({
+          email,
+          password: senha,
+          options: { data: { papel } },
+        })
         if (error) throw error
         if (!data.session) {
           setMsg('Conta criada! Confirme seu e-mail e entre novamente.')
@@ -57,15 +69,48 @@ function Auth() {
   return (
     <div className="mx-auto max-w-md px-5 py-16">
       <h1 className="text-center font-display text-3xl">
-        {modo === 'login' ? 'Entrar no painel' : 'Anuncie no Studio Diamond'}
+        {modo === 'login'
+          ? 'Entrar'
+          : papel === 'cliente'
+            ? 'Criar conta de cliente'
+            : 'Anuncie no Studio Diamond'}
       </h1>
       <p className="mt-2 text-center text-sm text-muted">
         {modo === 'login'
-          ? 'Acesso para anunciantes cadastradas.'
-          : 'Crie sua conta, monte seu perfil e apareça para milhares de visitantes.'}
+          ? 'Acesso para modelos e clientes.'
+          : papel === 'cliente'
+            ? 'Crie sua conta para assinar e acessar o conteúdo exclusivo das modelos.'
+            : 'Crie sua conta, monte seu perfil e apareça para milhares de visitantes.'}
       </p>
 
-      <form onSubmit={enviar} className="mt-8 space-y-4">
+      {modo === 'cadastro' && (
+        <div className="mt-6 grid grid-cols-2 gap-2 rounded-2xl border border-line bg-noir-900 p-1">
+          <button
+            type="button"
+            onClick={() => setPapel('advertiser')}
+            className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
+              papel === 'advertiser'
+                ? 'bg-gradient-to-r from-gold-500 to-gold-700 text-white'
+                : 'text-muted hover:text-ink'
+            }`}
+          >
+            Sou modelo
+          </button>
+          <button
+            type="button"
+            onClick={() => setPapel('cliente')}
+            className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
+              papel === 'cliente'
+                ? 'bg-gradient-to-r from-rose-500 to-red-600 text-white'
+                : 'text-muted hover:text-ink'
+            }`}
+          >
+            Sou cliente
+          </button>
+        </div>
+      )}
+
+      <form onSubmit={enviar} className="mt-6 space-y-4">
         <div>
           <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted">
             E-mail
@@ -100,8 +145,9 @@ function Auth() {
               className="mt-0.5"
             />
             <span>
-              Confirmo que tenho <b>18 anos ou mais</b>, que o anúncio é meu e
-              aceito os termos de uso e a política de privacidade.
+              Confirmo que tenho <b>18 anos ou mais</b>
+              {papel === 'advertiser' ? ', que o anúncio é meu' : ''} e aceito os
+              termos de uso e a política de privacidade.
             </span>
           </label>
         )}
@@ -113,7 +159,13 @@ function Auth() {
           disabled={busy}
           className="w-full rounded-xl bg-gradient-to-r from-gold-500 to-gold-700 px-6 py-4 font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
         >
-          {busy ? 'Aguarde…' : modo === 'login' ? 'Entrar' : 'Criar conta'}
+          {busy
+            ? 'Aguarde…'
+            : modo === 'login'
+              ? 'Entrar'
+              : papel === 'cliente'
+                ? 'Criar conta de cliente'
+                : 'Criar conta'}
         </button>
       </form>
 
@@ -124,9 +176,7 @@ function Auth() {
         }}
         className="mt-6 w-full text-center text-sm text-muted underline transition hover:text-ink"
       >
-        {modo === 'login'
-          ? 'Não tem conta? Anuncie agora'
-          : 'Já tem conta? Entrar'}
+        {modo === 'login' ? 'Não tem conta? Criar agora' : 'Já tem conta? Entrar'}
       </button>
     </div>
   )

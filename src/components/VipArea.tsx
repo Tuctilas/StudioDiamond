@@ -93,13 +93,24 @@ export function VipArea({
 
   async function assinar() {
     if (!user) {
-      window.location.href = '/auth'
+      window.location.href = '/auth?tipo=cliente'
       return
     }
     setAssinando(true)
     setMsg('')
     const { error } = await supabase.rpc('assinar_vip', { p_profile_id: profileId })
     setAssinando(false)
+    if (error) {
+      setMsg(error.message)
+      return
+    }
+    window.location.reload()
+  }
+
+  async function cancelar() {
+    if (!window.confirm(`Cancelar sua assinatura de ${nome}? Você perde o acesso ao conteúdo.`))
+      return
+    const { error } = await supabase.rpc('cancelar_vip', { p_profile_id: profileId })
     if (error) {
       setMsg(error.message)
       return
@@ -182,6 +193,16 @@ export function VipArea({
             <p className="mb-4 text-xs text-rose-200">
               Você está vendo a prévia do seu conteúdo VIP como assinante.
             </p>
+          )}
+          {assinante && (
+            <div className="mb-4 flex justify-end">
+              <button
+                onClick={cancelar}
+                className="text-xs text-muted underline transition hover:text-red-400"
+              >
+                Cancelar assinatura
+              </button>
+            </div>
           )}
           {midias.length === 0 ? (
             <p className="text-sm text-muted">Nenhum conteúdo VIP publicado ainda.</p>

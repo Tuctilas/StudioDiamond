@@ -19,6 +19,12 @@ export function Header() {
             Acompanhantes
           </Link>
           <Link
+            to="/auth"
+            className="hidden text-muted transition hover:text-ink sm:block"
+          >
+            Entrar
+          </Link>
+          <Link
             to="/anuncie"
             className="rounded-full border border-gold-500/40 px-4 py-1.5 text-gold-400 transition hover:bg-gold-500/10"
           >
@@ -44,6 +50,13 @@ export function Header() {
             className="block py-2 text-muted transition hover:text-ink"
           >
             Acompanhantes
+          </Link>
+          <Link
+            to="/auth"
+            onClick={() => setOpen(false)}
+            className="block py-2 text-muted transition hover:text-ink"
+          >
+            Entrar
           </Link>
         </nav>
       )}

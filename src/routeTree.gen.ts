@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
-import { Route as ElogiosRouteImport } from './routes/elogios'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AnuncieRouteImport } from './routes/anuncie'
 import { Route as AcompanhantesRouteImport } from './routes/acompanhantes'
@@ -44,11 +43,6 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const PrivacidadeRoute = PrivacidadeRouteImport.update({
   id: '/privacidade',
   path: '/privacidade',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ElogiosRoute = ElogiosRouteImport.update({
-  id: '/elogios',
-  path: '/elogios',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -149,7 +143,6 @@ export interface FileRoutesByFullPath {
   '/acompanhantes': typeof AcompanhantesRouteWithChildren
   '/anuncie': typeof AnuncieRoute
   '/auth': typeof AuthRoute
-  '/elogios': typeof ElogiosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
@@ -170,7 +163,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/anuncie': typeof AnuncieRoute
   '/auth': typeof AuthRoute
-  '/elogios': typeof ElogiosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
@@ -194,7 +186,6 @@ export interface FileRoutesById {
   '/acompanhantes': typeof AcompanhantesRouteWithChildren
   '/anuncie': typeof AnuncieRoute
   '/auth': typeof AuthRoute
-  '/elogios': typeof ElogiosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
@@ -218,7 +209,6 @@ export interface FileRouteTypes {
     | '/acompanhantes'
     | '/anuncie'
     | '/auth'
-    | '/elogios'
     | '/privacidade'
     | '/sitemap.xml'
     | '/termos'
@@ -239,7 +229,6 @@ export interface FileRouteTypes {
     | '/'
     | '/anuncie'
     | '/auth'
-    | '/elogios'
     | '/privacidade'
     | '/sitemap.xml'
     | '/termos'
@@ -262,7 +251,6 @@ export interface FileRouteTypes {
     | '/acompanhantes'
     | '/anuncie'
     | '/auth'
-    | '/elogios'
     | '/privacidade'
     | '/sitemap.xml'
     | '/termos'
@@ -286,7 +274,6 @@ export interface RootRouteChildren {
   AcompanhantesRoute: typeof AcompanhantesRouteWithChildren
   AnuncieRoute: typeof AnuncieRoute
   AuthRoute: typeof AuthRoute
-  ElogiosRoute: typeof ElogiosRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermosRoute: typeof TermosRoute
@@ -314,13 +301,6 @@ declare module '@tanstack/react-router' {
       path: '/privacidade'
       fullPath: '/privacidade'
       preLoaderRoute: typeof PrivacidadeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/elogios': {
-      id: '/elogios'
-      path: '/elogios'
-      fullPath: '/elogios'
-      preLoaderRoute: typeof ElogiosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -493,7 +473,6 @@ const rootRouteChildren: RootRouteChildren = {
   AcompanhantesRoute: AcompanhantesRouteWithChildren,
   AnuncieRoute: AnuncieRoute,
   AuthRoute: AuthRoute,
-  ElogiosRoute: ElogiosRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermosRoute: TermosRoute,

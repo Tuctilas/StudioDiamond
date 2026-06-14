@@ -9,7 +9,7 @@ export const Route = createFileRoute('/_authenticated')({
 })
 
 function AuthGate() {
-  const { loading, session, isAdmin } = useAuth()
+  const { loading, session, isAdmin, isCliente } = useAuth()
   const navigate = useNavigate()
 
   if (loading) {
@@ -38,42 +38,7 @@ function AuthGate() {
           >
             Painel
           </Link>
-          <Link
-            to="/painel/perfil"
-            activeProps={{ className: 'border-gold-500 text-gold-300' }}
-            className="rounded-full border border-line px-4 py-1.5 text-muted transition hover:text-ink"
-          >
-            Meu perfil
-          </Link>
-          <Link
-            to="/painel/fotos"
-            activeProps={{ className: 'border-gold-500 text-gold-300' }}
-            className="rounded-full border border-line px-4 py-1.5 text-muted transition hover:text-ink"
-          >
-            Fotos
-          </Link>
-          <Link
-            to="/painel/vip"
-            activeProps={{ className: 'border-gold-500 text-gold-300' }}
-            className="rounded-full border border-line px-4 py-1.5 text-muted transition hover:text-ink"
-          >
-            Conteúdo VIP
-          </Link>
-          <Link
-            to="/painel/carteira"
-            activeProps={{ className: 'border-gold-500 text-gold-300' }}
-            className="rounded-full border border-line px-4 py-1.5 text-muted transition hover:text-ink"
-          >
-            Carteira
-          </Link>
-          <Link
-            to="/painel/assinaturas"
-            activeProps={{ className: 'border-gold-500 text-gold-300' }}
-            className="rounded-full border border-line px-4 py-1.5 text-muted transition hover:text-ink"
-          >
-            Minhas assinaturas
-          </Link>
-          {isAdmin && (
+          {isAdmin ? (
             <>
               <Link
                 to="/painel/admin"
@@ -95,6 +60,48 @@ function AuthGate() {
                 className="rounded-full border border-gold-500/40 px-4 py-1.5 text-gold-400 transition hover:bg-gold-500/10"
               >
                 Saques
+              </Link>
+            </>
+          ) : (
+            <>
+              {!isCliente && (
+                <>
+                  <Link
+                    to="/painel/perfil"
+                    activeProps={{ className: 'border-gold-500 text-gold-300' }}
+                    className="rounded-full border border-line px-4 py-1.5 text-muted transition hover:text-ink"
+                  >
+                    Meu perfil
+                  </Link>
+                  <Link
+                    to="/painel/fotos"
+                    activeProps={{ className: 'border-gold-500 text-gold-300' }}
+                    className="rounded-full border border-line px-4 py-1.5 text-muted transition hover:text-ink"
+                  >
+                    Fotos
+                  </Link>
+                  <Link
+                    to="/painel/vip"
+                    activeProps={{ className: 'border-gold-500 text-gold-300' }}
+                    className="rounded-full border border-line px-4 py-1.5 text-muted transition hover:text-ink"
+                  >
+                    Conteúdo VIP
+                  </Link>
+                  <Link
+                    to="/painel/carteira"
+                    activeProps={{ className: 'border-gold-500 text-gold-300' }}
+                    className="rounded-full border border-line px-4 py-1.5 text-muted transition hover:text-ink"
+                  >
+                    Carteira
+                  </Link>
+                </>
+              )}
+              <Link
+                to="/painel/assinaturas"
+                activeProps={{ className: 'border-gold-500 text-gold-300' }}
+                className="rounded-full border border-line px-4 py-1.5 text-muted transition hover:text-ink"
+              >
+                Minhas assinaturas
               </Link>
             </>
           )}

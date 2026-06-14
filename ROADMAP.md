@@ -12,13 +12,14 @@ Lista das próximas alterações, em ordem de prioridade. Atualizado em jun/2026
 - Bloqueio de download das mídias (deter, não DRM).
 - Bloco legal: Termos reescritos + verificação (documento/vídeo em bucket privado, aceite com data/hora).
 - **Fase 2 VIP**: área restrita por modelo, comentários moderáveis, carteira e **split** (Ruby 0%, Ouro/Diamante 15%, Prata bloqueado). A modelo define o próprio preço do conteúdo. **Pagamento ainda SIMULADO.**
-- **Elogios** só no perfil de cada modelo (link global removido do header/footer).
-- **Área de assinantes** (`/painel/assinaturas`): cliente vê o que assina, acessa/renova e recebe sugestões de modelos com as mesmas categorias.
+- **Elogios** só no perfil de cada modelo (página global `/elogios` removida; elogio por modelo no perfil segue ativo).
+- **Contas separadas cliente x modelo**: cadastro escolhe o tipo (`/auth`, papel salvo via metadata + trigger `handle_new_user`); o painel se adapta ao papel. Header tem botão **Entrar** (cliente e anunciante). Admin vê só painel de moderação (sem opções de cliente/assinante). Contas antigas sem papel seguem como modelo.
+- **Área de assinantes** (`/painel/assinaturas`): cliente vê o que assina, acessa/renova, **cancela** (RPC `cancelar_vip`) e recebe sugestões de modelos com as mesmas categorias.
 
 ---
 
 ## 🔴 Fase 3 — Pagamento real (crítico para faturar)
-A peça que falta para o dinheiro existir de verdade. Decisão pendente: **provedor (Asaas recomendado, ou Mercado Pago)**.
+A peça que falta para o dinheiro existir de verdade. **Provedor escolhido: Asaas** (Pix + split + subconta). Falta abrir a conta + KYC e integrar.
 
 1. **Onboarding de recebimento da modelo**: ✅ captura da **chave Pix** no painel (Carteira; saque bloqueado sem chave — rode `supabase/pix.sql`). Falta criar a subconta no provedor (KYC).
 2. **Cobrança do plano de vitrine (a modelo paga)**: checkout recorrente mensal; ao confirmar, o admin não precisa mais setar o plano na mão.
@@ -29,8 +30,8 @@ A peça que falta para o dinheiro existir de verdade. Decisão pendente: **prove
 7. **Expiração de plano (`plano_expira`)**: quando vencer, rebaixar/pausar o anúncio automaticamente (cron/checagem).
 
 ## 🟠 Fase 4 — Experiência de cliente (quem assina)
-8. **Separar login de cliente x modelo**: hoje `/auth` é compartilhado e um cliente cai no painel de anunciante. Criar papel/experiência de cliente.
-9. ✅ **"Minhas assinaturas"** (`/painel/assinaturas`): cliente vê/acessa/renova as assinaturas + sugestões por categoria. Falta o cancelamento real (depende do provedor) e separar o login (item 8).
+8. ✅ **Login cliente x modelo separado**: cadastro escolhe o tipo; papel `cliente` salvo via metadata + trigger; painel se adapta (`isCliente`). Falta só o fluxo de e-mail de confirmação caprichado por papel.
+9. ✅ **"Minhas assinaturas"** (`/painel/assinaturas`): cliente vê/acessa/renova/**cancela** + sugestões por categoria. Cancelamento hoje remove o acesso; a não-renovação no provedor entra na Fase 3.
 10. **Anti-spam**: honeypot/captcha + rate limit em elogios, comentários e cadastro (hoje qualquer um insere).
 
 ## 🟡 Fase 5 — Conteúdo rico do perfil (público)
@@ -45,13 +46,14 @@ Os planos prometem isso; ainda não existe na página pública:
 16. **E-mails transacionais**: aprovação do anúncio, novo assinante, status de saque (hoje promete e-mail mas não envia).
 17. **Política de Privacidade (LGPD)**: a `/privacidade` precisa de texto completo (guarda de documentos, retenção, direitos do titular).
 18. **Revisão jurídica por advogado** dos Termos/Privacidade antes de ir ao ar pra valer.
-19. ✅ **Menu mobile**: header com menu hambúrguer no celular (Acompanhantes/Elogios atrás do botão; CTA "Anunciar" sempre visível).
+19. ✅ **Menu mobile**: header com menu hambúrguer no celular (Acompanhantes atrás do botão; CTA "Anunciar" sempre visível).
 20. **Proteção extra do conteúdo VIP**: marca d'água com id do assinante (inibe vazamento), URLs assinadas curtas.
 21. **Migração para o domínio/projeto definitivo**: confirmar se o Supabase é o `hnkviyz...` mesmo e trocar a senha do banco (passou pelo chat).
 
 ---
 
 ## Decisões em aberto
-- **Provedor de pagamento**: Asaas (recomendado p/ Pix + split + subconta) vs Mercado Pago.
-- **Separação de contas** cliente x modelo: fazer agora ou junto da Fase 3?
 - **Preços finais** dos planos e da promo (valores atuais são ponto de partida).
+
+## Decididas
+- **Provedor de pagamento: Asaas** (Pix + split + subconta). Próximo: abrir conta + KYC + integração.

@@ -126,17 +126,20 @@ function Perfil() {
           {(p.preco_hora != null || p.preco_2h != null || p.preco_pernoite) && (
             <div className="mt-4 flex flex-wrap items-end gap-x-6 gap-y-1">
               {p.preco_hora != null && (
-                <div className="font-display text-2xl">
-                  {fmtBRL(p.preco_hora)} <span className="text-sm text-muted">/ 1h</span>
+                <div className="font-display text-2xl font-semibold text-gold-300">
+                  {fmtBRL(p.preco_hora)}{' '}
+                  <span className="text-sm font-normal text-ink/60">/ 1h</span>
                 </div>
               )}
               {p.preco_2h != null && (
-                <div className="font-display text-xl text-muted">
-                  {fmtBRL(p.preco_2h)} <span className="text-sm">/ 2h</span>
+                <div className="font-display text-xl text-ink">
+                  {fmtBRL(p.preco_2h)} <span className="text-sm text-ink/60">/ 2h</span>
                 </div>
               )}
               {p.preco_pernoite && (
-                <div className="text-sm text-muted">Pernoite: {p.preco_pernoite}</div>
+                <div className="text-sm text-ink/80">
+                  Pernoite: <span className="font-semibold">{p.preco_pernoite}</span>
+                </div>
               )}
             </div>
           )}

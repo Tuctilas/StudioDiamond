@@ -8,6 +8,7 @@ import {
   getSugestoesParaAssinante,
 } from '#/lib/queries'
 import type { AssinaturaComModelo, ProfileComCapa } from '#/lib/queries'
+import { supabase } from '#/lib/supabase'
 import { useAuth } from '#/lib/useAuth'
 
 export const Route = createFileRoute('/_authenticated/painel/assinaturas')({
@@ -40,6 +41,14 @@ function MinhasAssinaturas() {
       cancel = true
     }
   }, [user])
+
+  async function cancelar(a: AssinaturaComModelo) {
+    const nome = a.modelo?.nome_exibicao ?? 'esta modelo'
+    if (!window.confirm(`Cancelar sua assinatura de ${nome}? Você perde o acesso ao conteúdo.`))
+      return
+    const { error } = await supabase.rpc('cancelar_vip', { p_profile_id: a.profile_id })
+    if (!error) setAssinaturas((lista) => lista.filter((x) => x.id !== a.id))
+  }
 
   if (carregando) return <p className="text-sm text-muted">Carregando…</p>
 
@@ -84,19 +93,27 @@ function MinhasAssinaturas() {
                     )}
                   </div>
                 </div>
-                {m ? (
-                  <Link
-                    to="/acompanhantes/$slug"
-                    params={{ slug: m.slug }}
-                    className={`shrink-0 rounded-xl px-4 py-2 text-sm font-semibold transition ${
-                      a.ativa
-                        ? 'border border-rose-500/50 text-rose-200 hover:bg-rose-500/10'
-                        : 'bg-gradient-to-r from-rose-500 to-red-600 text-white hover:brightness-110'
-                    }`}
+                <div className="flex shrink-0 flex-col items-end gap-1">
+                  {m ? (
+                    <Link
+                      to="/acompanhantes/$slug"
+                      params={{ slug: m.slug }}
+                      className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
+                        a.ativa
+                          ? 'border border-rose-500/50 text-rose-200 hover:bg-rose-500/10'
+                          : 'bg-gradient-to-r from-rose-500 to-red-600 text-white hover:brightness-110'
+                      }`}
+                    >
+                      {a.ativa ? 'Acessar conteúdo' : 'Renovar'}
+                    </Link>
+                  ) : null}
+                  <button
+                    onClick={() => cancelar(a)}
+                    className="text-xs text-muted underline transition hover:text-red-400"
                   >
-                    {a.ativa ? 'Acessar conteúdo' : 'Renovar'}
-                  </Link>
-                ) : null}
+                    Cancelar
+                  </button>
+                </div>
               </div>
             )
           })}
