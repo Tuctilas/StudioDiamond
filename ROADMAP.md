@@ -23,7 +23,7 @@ A peça que falta para o dinheiro existir de verdade. **Provedor escolhido: Asaa
 
 1. **Onboarding de recebimento da modelo**: ✅ captura da **chave Pix** no painel (Carteira; saque bloqueado sem chave — rode `supabase/pix.sql`). Falta criar a subconta no provedor (KYC).
 2. **Cobrança do plano de vitrine (a modelo paga)**: checkout recorrente mensal; ao confirmar, o admin não precisa mais setar o plano na mão.
-3. **Assinatura VIP (o cliente paga)**: trocar o `assinar_vip` simulado por checkout real; aplicar o **split 85/15** (Ruby 0%) via provedor; creditar o líquido na carteira. (Taxa de 15% rodar `supabase/taxa-15.sql`.)
+3. **Assinatura VIP (o cliente paga)**: 🟡 código pronto (Edge Functions `asaas-criar-cobranca` + `asaas-webhook`, tabela `vip_charges`, checkout Pix na VipArea com split 85/15). Falta **deployar as funções + configurar secrets/webhook + testar no sandbox**. Ver `supabase/asaas-pagamentos.sql` e `supabase/functions/`.
 4. **Saque real**: o "Sacar" vira Pix de verdade via API do provedor; status atualizado por **webhook**.
 5. **Webhooks** de pagamento aprovado/estornado/assinatura cancelada.
 6. **Promoção dos 20 primeiros**: aplicar o desconto de fato na cobrança (hoje é só visual).
