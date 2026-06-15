@@ -3,6 +3,7 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { PLANOS, PLANO_SELO, PROMO, precoComPromo } from '#/lib/planos'
 import { getTotalCadastros } from '#/lib/queries'
 import { fmtBRL } from '#/lib/supabase'
+import { useAuth } from '#/lib/useAuth'
 
 export const Route = createFileRoute('/anuncie')({
   loader: async () => {
@@ -24,8 +25,11 @@ export const Route = createFileRoute('/anuncie')({
 
 function Anuncie() {
   const { total } = Route.useLoaderData()
+  const { session } = useAuth()
   const vagasRestantes = Math.max(0, PROMO.vagas - total)
   const promoAtiva = vagasRestantes > 0
+  // Logado vai pro painel (gerenciar perfil/plano); deslogado vai cadastrar.
+  const destino = session ? '/painel' : '/auth'
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-12">
@@ -115,7 +119,7 @@ function Anuncie() {
               </ul>
 
               <Link
-                to="/auth"
+                to={destino}
                 className={`mt-6 rounded-xl px-5 py-3 text-center font-semibold transition ${
                   p.popular
                     ? 'bg-gradient-to-r from-gold-500 to-gold-700 text-white hover:brightness-110'
@@ -173,7 +177,7 @@ function Anuncie() {
 
       <div className="mt-12 text-center">
         <Link
-          to="/auth"
+          to={destino}
           className="inline-block rounded-xl bg-gradient-to-r from-gold-500 to-gold-700 px-8 py-4 font-semibold text-white transition hover:brightness-110"
         >
           Começar meu cadastro →

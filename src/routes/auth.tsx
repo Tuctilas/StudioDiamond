@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { Navigate, createFileRoute, useNavigate } from '@tanstack/react-router'
 
 import { supabase } from '#/lib/supabase'
+import { useAuth } from '#/lib/useAuth'
 
 type Papel = 'advertiser' | 'cliente'
 
@@ -21,6 +22,7 @@ export const Route = createFileRoute('/auth')({
 
 function Auth() {
   const navigate = useNavigate()
+  const { loading, session } = useAuth()
   const { tipo } = Route.useSearch()
   const [modo, setModo] = useState<'login' | 'cadastro'>(tipo ? 'cadastro' : 'login')
   const [papel, setPapel] = useState<Papel>(tipo ?? 'advertiser')
@@ -29,6 +31,9 @@ function Auth() {
   const [aceite, setAceite] = useState(false)
   const [msg, setMsg] = useState('')
   const [busy, setBusy] = useState(false)
+
+  // Já logado? Não faz sentido ver a tela de login — vai pro painel.
+  if (!loading && session) return <Navigate to="/painel" />
 
   async function enviar(e: React.FormEvent) {
     e.preventDefault()
