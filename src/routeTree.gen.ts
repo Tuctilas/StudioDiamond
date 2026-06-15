@@ -23,6 +23,7 @@ import { Route as AcompanhantesSlugRouteImport } from './routes/acompanhantes.$s
 import { Route as AuthenticatedPainelIndexRouteImport } from './routes/_authenticated.painel.index'
 import { Route as AuthenticatedPainelVipRouteImport } from './routes/_authenticated.painel.vip'
 import { Route as AuthenticatedPainelSaquesRouteImport } from './routes/_authenticated.painel.saques'
+import { Route as AuthenticatedPainelPlanoRouteImport } from './routes/_authenticated.painel.plano'
 import { Route as AuthenticatedPainelPerfilRouteImport } from './routes/_authenticated.painel.perfil'
 import { Route as AuthenticatedPainelFotosRouteImport } from './routes/_authenticated.painel.fotos'
 import { Route as AuthenticatedPainelElogiosRouteImport } from './routes/_authenticated.painel.elogios'
@@ -101,6 +102,12 @@ const AuthenticatedPainelSaquesRoute =
     path: '/painel/saques',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedPainelPlanoRoute =
+  AuthenticatedPainelPlanoRouteImport.update({
+    id: '/painel/plano',
+    path: '/painel/plano',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedPainelPerfilRoute =
   AuthenticatedPainelPerfilRouteImport.update({
     id: '/painel/perfil',
@@ -155,6 +162,7 @@ export interface FileRoutesByFullPath {
   '/painel/elogios': typeof AuthenticatedPainelElogiosRoute
   '/painel/fotos': typeof AuthenticatedPainelFotosRoute
   '/painel/perfil': typeof AuthenticatedPainelPerfilRoute
+  '/painel/plano': typeof AuthenticatedPainelPlanoRoute
   '/painel/saques': typeof AuthenticatedPainelSaquesRoute
   '/painel/vip': typeof AuthenticatedPainelVipRoute
   '/painel/': typeof AuthenticatedPainelIndexRoute
@@ -175,6 +183,7 @@ export interface FileRoutesByTo {
   '/painel/elogios': typeof AuthenticatedPainelElogiosRoute
   '/painel/fotos': typeof AuthenticatedPainelFotosRoute
   '/painel/perfil': typeof AuthenticatedPainelPerfilRoute
+  '/painel/plano': typeof AuthenticatedPainelPlanoRoute
   '/painel/saques': typeof AuthenticatedPainelSaquesRoute
   '/painel/vip': typeof AuthenticatedPainelVipRoute
   '/painel': typeof AuthenticatedPainelIndexRoute
@@ -198,6 +207,7 @@ export interface FileRoutesById {
   '/_authenticated/painel/elogios': typeof AuthenticatedPainelElogiosRoute
   '/_authenticated/painel/fotos': typeof AuthenticatedPainelFotosRoute
   '/_authenticated/painel/perfil': typeof AuthenticatedPainelPerfilRoute
+  '/_authenticated/painel/plano': typeof AuthenticatedPainelPlanoRoute
   '/_authenticated/painel/saques': typeof AuthenticatedPainelSaquesRoute
   '/_authenticated/painel/vip': typeof AuthenticatedPainelVipRoute
   '/_authenticated/painel/': typeof AuthenticatedPainelIndexRoute
@@ -221,6 +231,7 @@ export interface FileRouteTypes {
     | '/painel/elogios'
     | '/painel/fotos'
     | '/painel/perfil'
+    | '/painel/plano'
     | '/painel/saques'
     | '/painel/vip'
     | '/painel/'
@@ -241,6 +252,7 @@ export interface FileRouteTypes {
     | '/painel/elogios'
     | '/painel/fotos'
     | '/painel/perfil'
+    | '/painel/plano'
     | '/painel/saques'
     | '/painel/vip'
     | '/painel'
@@ -263,6 +275,7 @@ export interface FileRouteTypes {
     | '/_authenticated/painel/elogios'
     | '/_authenticated/painel/fotos'
     | '/_authenticated/painel/perfil'
+    | '/_authenticated/painel/plano'
     | '/_authenticated/painel/saques'
     | '/_authenticated/painel/vip'
     | '/_authenticated/painel/'
@@ -380,6 +393,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPainelSaquesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/painel/plano': {
+      id: '/_authenticated/painel/plano'
+      path: '/painel/plano'
+      fullPath: '/painel/plano'
+      preLoaderRoute: typeof AuthenticatedPainelPlanoRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/painel/perfil': {
       id: '/_authenticated/painel/perfil'
       path: '/painel/perfil'
@@ -432,6 +452,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedPainelElogiosRoute: typeof AuthenticatedPainelElogiosRoute
   AuthenticatedPainelFotosRoute: typeof AuthenticatedPainelFotosRoute
   AuthenticatedPainelPerfilRoute: typeof AuthenticatedPainelPerfilRoute
+  AuthenticatedPainelPlanoRoute: typeof AuthenticatedPainelPlanoRoute
   AuthenticatedPainelSaquesRoute: typeof AuthenticatedPainelSaquesRoute
   AuthenticatedPainelVipRoute: typeof AuthenticatedPainelVipRoute
   AuthenticatedPainelIndexRoute: typeof AuthenticatedPainelIndexRoute
@@ -444,6 +465,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedPainelElogiosRoute: AuthenticatedPainelElogiosRoute,
   AuthenticatedPainelFotosRoute: AuthenticatedPainelFotosRoute,
   AuthenticatedPainelPerfilRoute: AuthenticatedPainelPerfilRoute,
+  AuthenticatedPainelPlanoRoute: AuthenticatedPainelPlanoRoute,
   AuthenticatedPainelSaquesRoute: AuthenticatedPainelSaquesRoute,
   AuthenticatedPainelVipRoute: AuthenticatedPainelVipRoute,
   AuthenticatedPainelIndexRoute: AuthenticatedPainelIndexRoute,

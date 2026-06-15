@@ -37,13 +37,13 @@ Deno.serve(async (req) => {
 
   if (paymentId) {
     if (tipo === 'PAYMENT_CONFIRMED' || tipo === 'PAYMENT_RECEIVED') {
-      // libera o VIP + credita a carteira (idempotente no banco)
+      // Tenta confirmar como assinatura VIP e como plano — cada função é
+      // no-op se o pagamento não estiver na tabela dela (idempotente).
       await admin.rpc('confirmar_pagamento_vip', { p_payment_id: paymentId })
+      await admin.rpc('confirmar_pagamento_plano', { p_payment_id: paymentId })
     } else if (tipo === 'PAYMENT_REFUNDED' || tipo === 'PAYMENT_CHARGEBACK_REQUESTED') {
-      await admin
-        .from('vip_charges')
-        .update({ status: 'refunded' })
-        .eq('asaas_payment_id', paymentId)
+      await admin.from('vip_charges').update({ status: 'refunded' }).eq('asaas_payment_id', paymentId)
+      await admin.from('plan_charges').update({ status: 'refunded' }).eq('asaas_payment_id', paymentId)
     }
   }
 

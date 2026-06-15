@@ -28,8 +28,8 @@ function Anuncie() {
   const { session } = useAuth()
   const vagasRestantes = Math.max(0, PROMO.vagas - total)
   const promoAtiva = vagasRestantes > 0
-  // Logado vai pro painel (gerenciar perfil/plano); deslogado vai cadastrar.
-  const destino = session ? '/painel' : '/auth'
+  // Logado vai contratar o plano; deslogado vai cadastrar primeiro.
+  const destino = session ? '/painel/plano' : '/auth'
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-12">

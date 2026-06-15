@@ -22,7 +22,7 @@ Lista das próximas alterações, em ordem de prioridade. Atualizado em jun/2026
 A peça que falta para o dinheiro existir de verdade. **Provedor escolhido: Asaas** (Pix + split + subconta). Falta abrir a conta + KYC e integrar.
 
 1. **Onboarding de recebimento da modelo**: ✅ captura da **chave Pix** no painel (Carteira; saque bloqueado sem chave — rode `supabase/pix.sql`). Falta criar a subconta no provedor (KYC).
-2. **Cobrança do plano de vitrine (a modelo paga)**: checkout recorrente mensal; ao confirmar, o admin não precisa mais setar o plano na mão.
+2. **Cobrança do plano de vitrine (a modelo paga)**: 🟡 código pronto — página `/painel/plano` + Pix via Asaas (mesma `asaas-criar-cobranca` com `tipo:'plano'`); ao confirmar, o webhook define `plano` + `plano_expira` (30d) sozinho. NÃO publica o perfil (verificação segue com o admin). Falta deploy + teste. Recorrência automática fica pra depois. Ver `supabase/plano-pagamento.sql`.
 3. **Assinatura VIP (o cliente paga)**: 🟡 código pronto (Edge Functions `asaas-criar-cobranca` + `asaas-webhook`, tabela `vip_charges`, checkout Pix na VipArea com split 85/15). Falta **deployar as funções + configurar secrets/webhook + testar no sandbox**. Ver `supabase/asaas-pagamentos.sql` e `supabase/functions/`.
 4. **Saque real**: o "Sacar" vira Pix de verdade via API do provedor; status atualizado por **webhook**.
 5. **Webhooks** de pagamento aprovado/estornado/assinatura cancelada.

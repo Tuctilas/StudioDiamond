@@ -150,7 +150,7 @@ function Dashboard() {
         ) : (
           <span className="text-muted">Nenhum ativo</span>
         )}
-        <Link to="/anuncie" className="ml-auto text-gold-400 underline">
+        <Link to="/painel/plano" className="ml-auto text-gold-400 underline">
           {plano ? 'Trocar plano' : 'Contratar um plano →'}
         </Link>
       </div>
