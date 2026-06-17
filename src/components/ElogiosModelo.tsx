@@ -17,6 +17,9 @@ export function ElogiosModelo({
   const [busy, setBusy] = useState(false)
   const [enviado, setEnviado] = useState(false)
   const [erro, setErro] = useState('')
+  // anti-spam: campo isca (só bot preenche) + instante de montagem do form
+  const [honeypot, setHoneypot] = useState('')
+  const [montadoEm] = useState(() => Date.now())
 
   function set(k: keyof typeof form, v: string) {
     setForm((f) => ({ ...f, [k]: v }))
@@ -27,6 +30,12 @@ export function ElogiosModelo({
     setErro('')
     if (form.mensagem.trim().length < 10) {
       setErro('Escreva um elogio com pelo menos algumas palavras.')
+      return
+    }
+    // Bot: preencheu o campo isca ou enviou rápido demais. Finge sucesso, não grava.
+    if (honeypot || Date.now() - montadoEm < 2500) {
+      setEnviado(true)
+      setForm({ mensagem: '', nome: '', email: '' })
       return
     }
     setBusy(true)
@@ -88,6 +97,16 @@ export function ElogiosModelo({
         </div>
       ) : (
         <form onSubmit={publicar} className="mt-8 max-w-2xl space-y-4">
+          {/* honeypot invisível — humanos não veem; bots preenchem */}
+          <input
+            type="text"
+            value={honeypot}
+            onChange={(e) => setHoneypot(e.target.value)}
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            className="absolute left-[-9999px] h-0 w-0 opacity-0"
+          />
           <textarea
             value={form.mensagem}
             onChange={(e) => set('mensagem', e.target.value)}

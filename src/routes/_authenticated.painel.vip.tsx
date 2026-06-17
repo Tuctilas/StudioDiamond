@@ -10,13 +10,19 @@ export const Route = createFileRoute('/_authenticated/painel/vip')({
   component: PainelVip,
 })
 
-const MAX_VIP = 20
+const MAX_VIP = 100
 
 interface PerfilVip {
   id: string
   vip_ativo: boolean
   vip_preco: number | null
   plano: PlanoSlug | null
+}
+
+interface Pendente {
+  file: File
+  preview: string
+  tipo: 'image' | 'video'
 }
 
 function PainelVip() {
@@ -29,6 +35,7 @@ function PainelVip() {
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState('')
   const [carregando, setCarregando] = useState(true)
+  const [pendentes, setPendentes] = useState<Pendente[]>([])
 
   useEffect(() => {
     if (!user) return
@@ -114,33 +121,56 @@ function PainelVip() {
     if (!error) setPerfil((p) => (p ? { ...p, vip_ativo: ativo, vip_preco: precoNum } : p))
   }
 
-  async function enviar(e: React.ChangeEvent<HTMLInputElement>) {
+  // Selecionar NÃO publica: prepara o conteúdo para revisão.
+  function selecionar(e: React.ChangeEvent<HTMLInputElement>) {
     const files = [...(e.target.files ?? [])]
     e.target.value = ''
-    if (!files.length || !user) return
-    if (midias.length + files.length > MAX_VIP) {
-      setMsg(`Limite de ${MAX_VIP} conteúdos VIP.`)
+    if (!files.length) return
+    if (midias.length + pendentes.length + files.length > MAX_VIP) {
+      setMsg(`Limite de ${MAX_VIP} conteúdos VIP no total.`)
       return
     }
+    setMsg('')
+    setPendentes((prev) => [
+      ...prev,
+      ...files.map((file) => ({
+        file,
+        preview: URL.createObjectURL(file),
+        tipo: (file.type.startsWith('video') ? 'video' : 'image') as 'image' | 'video',
+      })),
+    ])
+  }
+
+  function removerPendente(i: number) {
+    setPendentes((prev) => {
+      URL.revokeObjectURL(prev[i].preview)
+      return prev.filter((_, idx) => idx !== i)
+    })
+  }
+
+  function limparPendentes() {
+    pendentes.forEach((p) => URL.revokeObjectURL(p.preview))
+    setPendentes([])
+  }
+
+  // Só aqui o conteúdo vai de fato para a área restrita.
+  async function publicar() {
+    if (!pendentes.length || !user || !perfil) return
     setBusy(true)
-    setMsg('Enviando…')
+    setMsg('Publicando…')
     let ordem = midias.length
-    for (const file of files) {
+    for (const { file, tipo } of pendentes) {
       const path = `${user.id}/vip-${Date.now()}-${file.name.replace(/[^a-z0-9.\-_]/gi, '_')}`
       const { error } = await supabase.storage.from('vip-conteudo').upload(path, file)
       if (error) {
         setMsg(`Erro: ${error.message}`)
         continue
       }
-      await supabase.from('vip_media').insert({
-        profile_id: perfil!.id,
-        path,
-        tipo: file.type.startsWith('video') ? 'video' : 'image',
-        ordem: ordem++,
-      })
+      await supabase.from('vip_media').insert({ profile_id: perfil.id, path, tipo, ordem: ordem++ })
     }
-    await recarregar(perfil!.id)
-    setMsg('✅ Conteúdo enviado.')
+    limparPendentes()
+    await recarregar(perfil.id)
+    setMsg('✅ Conteúdo publicado.')
     setBusy(false)
   }
 
@@ -205,20 +235,67 @@ function PainelVip() {
       </div>
 
       {/* UPLOAD */}
-      <label className="mt-6 inline-block cursor-pointer rounded-xl border border-rose-500/40 px-6 py-3 text-sm font-semibold text-rose-200 transition hover:bg-rose-500/10">
-        + Enviar conteúdo VIP ({midias.length}/{MAX_VIP})
+      <p className="mt-6 text-sm text-muted">
+        O conteúdo só vai para a área restrita depois que você clicar em <b>Publicar</b>.
+      </p>
+      <label className="mt-2 inline-block cursor-pointer rounded-xl border border-rose-500/40 px-6 py-3 text-sm font-semibold text-rose-200 transition hover:bg-rose-500/10">
+        + Selecionar conteúdo VIP ({midias.length}/{MAX_VIP})
         <input
           type="file"
           accept="image/*,video/*"
           multiple
-          onChange={enviar}
+          onChange={selecionar}
           className="hidden"
           disabled={busy}
         />
       </label>
       {msg && <p className="mt-3 text-sm text-gold-400">{msg}</p>}
 
-      <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+      {/* PARA PUBLICAR (revisão) */}
+      {pendentes.length > 0 && (
+        <div className="mt-6 rounded-2xl border border-rose-500/30 bg-rose-950/10 p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="font-display text-lg text-rose-200">Para publicar ({pendentes.length})</h2>
+            <div className="flex gap-2">
+              <button
+                onClick={limparPendentes}
+                disabled={busy}
+                className="rounded-lg border border-line px-3 py-1.5 text-xs text-muted transition hover:text-ink"
+              >
+                Limpar
+              </button>
+              <button
+                onClick={publicar}
+                disabled={busy}
+                className="rounded-lg bg-gradient-to-r from-rose-500 to-red-600 px-4 py-1.5 text-xs font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
+              >
+                {busy ? 'Publicando…' : `Publicar ${pendentes.length} item(ns)`}
+              </button>
+            </div>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {pendentes.map((p, i) => (
+              <div key={i} className="relative overflow-hidden rounded-xl border border-rose-500/40">
+                {p.tipo === 'video' ? (
+                  <video src={p.preview} muted className="aspect-[3/4] w-full object-cover" />
+                ) : (
+                  <img src={p.preview} alt="" className="aspect-[3/4] w-full object-cover" />
+                )}
+                <button
+                  onClick={() => removerPendente(i)}
+                  className="absolute right-1 top-1 rounded-full bg-noir-950/85 px-2 py-0.5 text-xs text-red-400 hover:text-red-300"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* PUBLICADOS */}
+      {midias.length > 0 && <h2 className="mt-8 font-display text-lg">Publicados</h2>}
+      <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
         {midias.map((m) => (
           <div key={m.id} className="relative rounded-xl border border-line p-2 text-center">
             <div className="flex aspect-[3/4] items-center justify-center rounded bg-noir-800 text-xs text-muted">
@@ -233,7 +310,7 @@ function PainelVip() {
           </div>
         ))}
       </div>
-      {!midias.length && (
+      {!midias.length && !pendentes.length && (
         <p className="mt-6 text-sm text-muted">Nenhum conteúdo VIP ainda.</p>
       )}
 

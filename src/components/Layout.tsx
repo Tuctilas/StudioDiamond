@@ -13,12 +13,6 @@ export function Header() {
         </Link>
         <nav className="flex items-center gap-5 text-sm">
           <Link
-            to="/acompanhantes"
-            className="hidden text-muted transition hover:text-ink sm:block"
-          >
-            Acompanhantes
-          </Link>
-          <Link
             to="/auth"
             className="hidden text-muted transition hover:text-ink sm:block"
           >
@@ -44,13 +38,6 @@ export function Header() {
 
       {open && (
         <nav className="border-t border-line bg-noir-950/95 px-5 py-3 text-sm sm:hidden">
-          <Link
-            to="/acompanhantes"
-            onClick={() => setOpen(false)}
-            className="block py-2 text-muted transition hover:text-ink"
-          >
-            Acompanhantes
-          </Link>
           <Link
             to="/auth"
             onClick={() => setOpen(false)}

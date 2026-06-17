@@ -101,15 +101,24 @@ function AuthGate() {
                   >
                     Plano
                   </Link>
+                  <Link
+                    to="/painel/assinantes"
+                    activeProps={{ className: 'border-gold-500 text-gold-300' }}
+                    className="rounded-full border border-line px-4 py-1.5 text-muted transition hover:text-ink"
+                  >
+                    Assinantes
+                  </Link>
                 </>
               )}
-              <Link
-                to="/painel/assinaturas"
-                activeProps={{ className: 'border-gold-500 text-gold-300' }}
-                className="rounded-full border border-line px-4 py-1.5 text-muted transition hover:text-ink"
-              >
-                Minhas assinaturas
-              </Link>
+              {isCliente && (
+                <Link
+                  to="/painel/assinaturas"
+                  activeProps={{ className: 'border-gold-500 text-gold-300' }}
+                  className="rounded-full border border-line px-4 py-1.5 text-muted transition hover:text-ink"
+                >
+                  Minhas assinaturas
+                </Link>
+              )}
             </>
           )}
         </nav>

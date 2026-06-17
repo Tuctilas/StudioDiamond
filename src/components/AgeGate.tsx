@@ -2,17 +2,15 @@ import { useEffect, useState } from 'react'
 
 const KEY = 'studio_age_ok'
 
-/** Modal 18+ em tela cheia. Persiste em cookie + localStorage.
- *  O conteúdo continua no DOM (bom para indexação) — o modal só cobre. */
+/** Modal 18+ simples, exibido ao abrir o site.
+ *  Usa sessionStorage: reaparece a cada nova sessão (quando o site é reaberto),
+ *  mas não fica perguntando a cada recarregamento na mesma sessão. */
 export function AgeGate() {
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
     try {
-      const ok =
-        localStorage.getItem(KEY) === '1' ||
-        document.cookie.includes(`${KEY}=1`)
-      setOpen(!ok)
+      setOpen(sessionStorage.getItem(KEY) !== '1')
     } catch {
       setOpen(true)
     }
@@ -20,9 +18,7 @@ export function AgeGate() {
 
   function confirmar() {
     try {
-      localStorage.setItem(KEY, '1')
-      // cookie de 30 dias
-      document.cookie = `${KEY}=1; max-age=${60 * 60 * 24 * 30}; path=/; SameSite=Lax`
+      sessionStorage.setItem(KEY, '1')
     } catch {
       /* segue mesmo sem storage */
     }
@@ -39,9 +35,9 @@ export function AgeGate() {
         <div className="mx-auto my-4 h-px w-24 bg-gradient-to-r from-transparent via-gold-500 to-transparent" />
         <h1 className="font-display text-2xl text-ink">Conteúdo adulto +18</h1>
         <p className="mt-3 text-sm leading-relaxed text-muted">
-          Este site contém material destinado exclusivamente a maiores de 18
-          anos. Ao entrar, você confirma que tem 18 anos ou mais e que é
-          legalmente permitido acessar este conteúdo na sua localidade.
+          Este site contém material destinado exclusivamente a maiores de 18 anos. Ao entrar, você
+          confirma que tem 18 anos ou mais e que é legalmente permitido acessar este conteúdo na sua
+          localidade.
         </p>
         <button
           onClick={confirmar}
@@ -53,7 +49,7 @@ export function AgeGate() {
           href="https://www.google.com"
           className="mt-3 block w-full rounded-xl border border-line px-6 py-3 text-sm text-muted transition hover:text-ink"
         >
-          Sair
+          Sou menor de 18 anos — sair
         </a>
       </div>
     </div>

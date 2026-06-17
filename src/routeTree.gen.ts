@@ -29,6 +29,7 @@ import { Route as AuthenticatedPainelFotosRouteImport } from './routes/_authenti
 import { Route as AuthenticatedPainelElogiosRouteImport } from './routes/_authenticated.painel.elogios'
 import { Route as AuthenticatedPainelCarteiraRouteImport } from './routes/_authenticated.painel.carteira'
 import { Route as AuthenticatedPainelAssinaturasRouteImport } from './routes/_authenticated.painel.assinaturas'
+import { Route as AuthenticatedPainelAssinantesRouteImport } from './routes/_authenticated.painel.assinantes'
 import { Route as AuthenticatedPainelAdminRouteImport } from './routes/_authenticated.painel.admin'
 
 const TermosRoute = TermosRouteImport.update({
@@ -138,6 +139,12 @@ const AuthenticatedPainelAssinaturasRoute =
     path: '/painel/assinaturas',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedPainelAssinantesRoute =
+  AuthenticatedPainelAssinantesRouteImport.update({
+    id: '/painel/assinantes',
+    path: '/painel/assinantes',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedPainelAdminRoute =
   AuthenticatedPainelAdminRouteImport.update({
     id: '/painel/admin',
@@ -157,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/cidade/$cidade': typeof CidadeCidadeRoute
   '/acompanhantes/': typeof AcompanhantesIndexRoute
   '/painel/admin': typeof AuthenticatedPainelAdminRoute
+  '/painel/assinantes': typeof AuthenticatedPainelAssinantesRoute
   '/painel/assinaturas': typeof AuthenticatedPainelAssinaturasRoute
   '/painel/carteira': typeof AuthenticatedPainelCarteiraRoute
   '/painel/elogios': typeof AuthenticatedPainelElogiosRoute
@@ -178,6 +186,7 @@ export interface FileRoutesByTo {
   '/cidade/$cidade': typeof CidadeCidadeRoute
   '/acompanhantes': typeof AcompanhantesIndexRoute
   '/painel/admin': typeof AuthenticatedPainelAdminRoute
+  '/painel/assinantes': typeof AuthenticatedPainelAssinantesRoute
   '/painel/assinaturas': typeof AuthenticatedPainelAssinaturasRoute
   '/painel/carteira': typeof AuthenticatedPainelCarteiraRoute
   '/painel/elogios': typeof AuthenticatedPainelElogiosRoute
@@ -202,6 +211,7 @@ export interface FileRoutesById {
   '/cidade/$cidade': typeof CidadeCidadeRoute
   '/acompanhantes/': typeof AcompanhantesIndexRoute
   '/_authenticated/painel/admin': typeof AuthenticatedPainelAdminRoute
+  '/_authenticated/painel/assinantes': typeof AuthenticatedPainelAssinantesRoute
   '/_authenticated/painel/assinaturas': typeof AuthenticatedPainelAssinaturasRoute
   '/_authenticated/painel/carteira': typeof AuthenticatedPainelCarteiraRoute
   '/_authenticated/painel/elogios': typeof AuthenticatedPainelElogiosRoute
@@ -226,6 +236,7 @@ export interface FileRouteTypes {
     | '/cidade/$cidade'
     | '/acompanhantes/'
     | '/painel/admin'
+    | '/painel/assinantes'
     | '/painel/assinaturas'
     | '/painel/carteira'
     | '/painel/elogios'
@@ -247,6 +258,7 @@ export interface FileRouteTypes {
     | '/cidade/$cidade'
     | '/acompanhantes'
     | '/painel/admin'
+    | '/painel/assinantes'
     | '/painel/assinaturas'
     | '/painel/carteira'
     | '/painel/elogios'
@@ -270,6 +282,7 @@ export interface FileRouteTypes {
     | '/cidade/$cidade'
     | '/acompanhantes/'
     | '/_authenticated/painel/admin'
+    | '/_authenticated/painel/assinantes'
     | '/_authenticated/painel/assinaturas'
     | '/_authenticated/painel/carteira'
     | '/_authenticated/painel/elogios'
@@ -435,6 +448,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPainelAssinaturasRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/painel/assinantes': {
+      id: '/_authenticated/painel/assinantes'
+      path: '/painel/assinantes'
+      fullPath: '/painel/assinantes'
+      preLoaderRoute: typeof AuthenticatedPainelAssinantesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/painel/admin': {
       id: '/_authenticated/painel/admin'
       path: '/painel/admin'
@@ -447,6 +467,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteChildren {
   AuthenticatedPainelAdminRoute: typeof AuthenticatedPainelAdminRoute
+  AuthenticatedPainelAssinantesRoute: typeof AuthenticatedPainelAssinantesRoute
   AuthenticatedPainelAssinaturasRoute: typeof AuthenticatedPainelAssinaturasRoute
   AuthenticatedPainelCarteiraRoute: typeof AuthenticatedPainelCarteiraRoute
   AuthenticatedPainelElogiosRoute: typeof AuthenticatedPainelElogiosRoute
@@ -460,6 +481,7 @@ interface AuthenticatedRouteChildren {
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedPainelAdminRoute: AuthenticatedPainelAdminRoute,
+  AuthenticatedPainelAssinantesRoute: AuthenticatedPainelAssinantesRoute,
   AuthenticatedPainelAssinaturasRoute: AuthenticatedPainelAssinaturasRoute,
   AuthenticatedPainelCarteiraRoute: AuthenticatedPainelCarteiraRoute,
   AuthenticatedPainelElogiosRoute: AuthenticatedPainelElogiosRoute,

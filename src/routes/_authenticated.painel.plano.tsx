@@ -203,10 +203,21 @@ function ContratarPlano() {
           {PLANOS.map((p) => {
             const promo = precoComPromo(p.precoMes)
             return (
-              <div key={p.slug} className="flex flex-col rounded-2xl border border-line bg-noir-900/60 p-5">
+              <div
+                key={p.slug}
+                className={`relative flex flex-col rounded-2xl border bg-noir-900/60 p-5 ${
+                  p.popular ? 'border-gold-500/60 shadow-lg shadow-gold-700/10' : 'border-line'
+                }`}
+              >
+                {p.popular && (
+                  <span className="absolute -top-3 left-5 rounded-full bg-gradient-to-r from-gold-300 to-gold-500 px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider text-noir-950">
+                    Recomendado
+                  </span>
+                )}
                 <span className={`w-fit rounded-full bg-gradient-to-r px-3 py-0.5 text-xs font-bold uppercase tracking-wider ${PLANO_SELO[p.slug]}`}>
                   {p.nome}
                 </span>
+                <p className="mt-3 text-xs text-muted">{p.resumo}</p>
                 <div className="mt-3">
                   {promoAtiva ? (
                     <>
@@ -223,13 +234,29 @@ function ContratarPlano() {
                     </div>
                   )}
                 </div>
-                <p className="mt-2 flex-1 text-xs text-muted">{p.resumo}</p>
+                <div className="mt-2 text-xs">
+                  {p.vendeConteudo ? (
+                    <span className="text-emerald-400">
+                      Venda de conteúdo {p.taxaVendaPct === 0 ? '· 0% de taxa' : `· ${p.taxaVendaPct}% de taxa`}
+                    </span>
+                  ) : (
+                    <span className="text-muted">Sem venda de conteúdo</span>
+                  )}
+                </div>
+                <ul className="mt-4 flex-1 space-y-2 text-sm">
+                  {p.beneficios.map((b) => (
+                    <li key={b} className="flex items-start gap-2">
+                      <span className="mt-0.5 text-gold-400">✦</span>
+                      <span className="text-ink/90">{b}</span>
+                    </li>
+                  ))}
+                </ul>
                 <button
                   onClick={() => {
                     setEscolhido(p.slug)
                     setMsg('')
                   }}
-                  className="mt-4 rounded-xl border border-gold-500/40 px-4 py-2.5 text-sm font-semibold text-gold-300 transition hover:bg-gold-500/10"
+                  className="mt-5 rounded-xl border border-gold-500/40 px-4 py-2.5 text-sm font-semibold text-gold-300 transition hover:bg-gold-500/10"
                 >
                   {planoAtual === p.slug ? 'Renovar' : 'Contratar'}
                 </button>

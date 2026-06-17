@@ -21,6 +21,18 @@ const PRECOS_PLANO: Record<string, number> = { ruby: 1900, diamante: 1500, ouro:
 const PROMO_VAGAS = 20
 const PROMO_DESCONTO = 0.3
 
+/** Idade a partir de yyyy-mm-dd. Retorna -1 se a data for inválida. */
+function idadeDe(nasc: string): number {
+  if (!nasc) return -1
+  const d = new Date(`${nasc}T00:00:00`)
+  if (Number.isNaN(d.getTime())) return -1
+  const hoje = new Date()
+  let anos = hoje.getFullYear() - d.getFullYear()
+  const m = hoje.getMonth() - d.getMonth()
+  if (m < 0 || (m === 0 && hoje.getDate() < d.getDate())) anos--
+  return anos
+}
+
 async function asaas(path: string, init: RequestInit = {}) {
   const r = await fetch(`${ASAAS_BASE_URL}${path}`, {
     ...init,
@@ -110,6 +122,10 @@ Deno.serve(async (req) => {
     }
 
     // tipo 'vip' (padrão): cliente assina o conteúdo de uma modelo
+    // Conteúdo adulto: confirma 18+ pela data de nascimento (também no servidor).
+    if (idadeDe(String(body.dataNascimento ?? '')) < 18) {
+      return json({ error: 'Conteúdo restrito a maiores de 18 anos.' }, 403)
+    }
     const profile_id = body.profile_id
     if (!profile_id) return json({ error: 'profile_id é obrigatório.' }, 400)
     const { data: perfil } = await admin

@@ -15,7 +15,17 @@ export function ProfileCard({ p }: { p: ProfileComCapa }) {
       className="group relative block overflow-hidden rounded-2xl border border-gold-500/10 bg-noir-800 shadow-lg transition hover:-translate-y-1 hover:border-gold-500/60 hover:shadow-gold-700/20"
     >
       <div className="relative aspect-[3/4] overflow-hidden">
-        {p.capa_url ? (
+        {p.capa_video_url ? (
+          <video
+            src={p.capa_video_url}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          />
+        ) : p.capa_url ? (
           <img
             src={p.capa_url}
             alt={p.nome_exibicao}

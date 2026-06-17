@@ -59,6 +59,10 @@ const VAZIO = {
   preco_pernoite: '',
   documento_url: '',
   video_verificacao_url: '',
+  rede_instagram: '',
+  rede_twitter: '',
+  rede_tiktok: '',
+  rede_telegram: '',
 }
 
 function EditarPerfil() {
@@ -135,6 +139,10 @@ function EditarPerfil() {
           preco_pernoite: data.preco_pernoite ?? '',
           documento_url: data.documento_url ?? '',
           video_verificacao_url: data.video_verificacao_url ?? '',
+          rede_instagram: data.rede_instagram ?? '',
+          rede_twitter: data.rede_twitter ?? '',
+          rede_tiktok: data.rede_tiktok ?? '',
+          rede_telegram: data.rede_telegram ?? '',
         })
         setTermosEm(data.termos_aceitos_em ?? null)
         setVerificado(Boolean(data.verificado))
@@ -244,6 +252,10 @@ function EditarPerfil() {
       preco_pernoite: t(form.preco_pernoite),
       documento_url: form.documento_url || null,
       video_verificacao_url: form.video_verificacao_url || null,
+      rede_instagram: t(form.rede_instagram),
+      rede_twitter: t(form.rede_twitter),
+      rede_tiktok: t(form.rede_tiktok),
+      rede_telegram: t(form.rede_telegram),
       termos_aceitos_em,
     }
     try {
@@ -445,6 +457,27 @@ function EditarPerfil() {
             </Campo>
             <Campo label="Telefone (opcional)">
               <input {...campo('telefone')} type="tel" className={input} />
+            </Campo>
+          </div>
+        </Secao>
+
+        {/* ───────── REDES SOCIAIS ───────── */}
+        <Secao titulo="Redes sociais (opcional)">
+          <p className="text-xs text-muted">
+            Cole o link completo. Cada rede só aparece no seu perfil se você preencher.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Campo label="Instagram">
+              <input {...campo('rede_instagram')} className={input} placeholder="https://instagram.com/seu_perfil" />
+            </Campo>
+            <Campo label="Twitter / X">
+              <input {...campo('rede_twitter')} className={input} placeholder="https://x.com/seu_perfil" />
+            </Campo>
+            <Campo label="TikTok">
+              <input {...campo('rede_tiktok')} className={input} placeholder="https://tiktok.com/@seu_perfil" />
+            </Campo>
+            <Campo label="Telegram">
+              <input {...campo('rede_telegram')} className={input} placeholder="https://t.me/seu_perfil" />
             </Campo>
           </div>
         </Secao>

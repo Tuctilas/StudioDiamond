@@ -52,6 +52,11 @@ export interface Profile {
   vip_preco: number | null
   pix_tipo: PixTipo | null
   pix_chave: string | null
+  capa_video_url: string | null
+  rede_instagram: string | null
+  rede_twitter: string | null
+  rede_tiktok: string | null
+  rede_telegram: string | null
   created_at: string
 }
 
@@ -105,6 +110,7 @@ export interface ProfilePhoto {
   url: string
   ordem: number
   is_capa: boolean
+  tipo: 'image' | 'video'
 }
 
 export interface Cidade {

@@ -15,12 +15,14 @@ export interface ProfileComCapa extends Profile {
 function comCapa(rows: any[]): ProfileComCapa[] {
   return (rows ?? []).map((p) => {
     const fotos: ProfilePhoto[] = p.profile_photos ?? []
-    const capa = fotos.find((f) => f.is_capa) ?? fotos[0]
+    // A capa do card é sempre uma foto (nunca um vídeo da galeria).
+    const imagens = fotos.filter((f) => f.tipo !== 'video')
+    const capa = imagens.find((f) => f.is_capa) ?? imagens[0]
     return { ...p, capa_url: capa?.url ?? null }
   })
 }
 
-const SELECT_COM_FOTOS = '*, profile_photos(id, url, ordem, is_capa)'
+const SELECT_COM_FOTOS = '*, profile_photos(id, url, ordem, is_capa, tipo)'
 
 export async function getDestaques(): Promise<ProfileComCapa[]> {
   const { data } = await supabase
@@ -77,7 +79,7 @@ export async function getProfileBySlug(slug: string): Promise<PerfilCompleto | n
   const { data } = await supabase
     .from('profiles')
     .select(
-      '*, profile_photos(id, profile_id, url, ordem, is_capa), profile_categories(categories(id, slug, nome)), profile_fetiches(fetiches(id, slug, nome)), profile_caracteristicas(caracteristicas(id, grupo, slug, nome, ordem))',
+      '*, profile_photos(id, profile_id, url, ordem, is_capa, tipo), profile_categories(categories(id, slug, nome)), profile_fetiches(fetiches(id, slug, nome)), profile_caracteristicas(caracteristicas(id, grupo, slug, nome, ordem))',
     )
     .eq('slug', slug)
     .eq('status', 'active')

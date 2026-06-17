@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 
+import { GaleriaItem } from '#/components/GaleriaItem'
 import { supabase } from '#/lib/supabase'
 import type { VipComment, VipMedia } from '#/lib/supabase'
 import { fmtBRL } from '#/lib/supabase'
@@ -34,6 +35,7 @@ export function VipArea({
   const [etapa, setEtapa] = useState<'inicio' | 'dados' | 'pix'>('inicio')
   const [nomePagador, setNomePagador] = useState('')
   const [cpf, setCpf] = useState('')
+  const [nasc, setNasc] = useState('')
   const [pix, setPix] = useState<{
     payload: string
     image: string
@@ -140,9 +142,22 @@ export function VipArea({
       setMsg('Informe um CPF (11 dígitos) ou CNPJ (14) válido.')
       return
     }
+    const d = new Date(`${nasc}T00:00:00`)
+    if (!nasc || Number.isNaN(d.getTime())) {
+      setMsg('Informe sua data de nascimento.')
+      return
+    }
+    const hoje = new Date()
+    let idade = hoje.getFullYear() - d.getFullYear()
+    const mm = hoje.getMonth() - d.getMonth()
+    if (mm < 0 || (mm === 0 && hoje.getDate() < d.getDate())) idade--
+    if (idade < 18) {
+      setMsg('Conteúdo restrito a maiores de 18 anos.')
+      return
+    }
     setAssinando(true)
     const { data, error } = await supabase.functions.invoke('asaas-criar-cobranca', {
-      body: { profile_id: profileId, nome: nomePagador.trim(), cpfCnpj: doc },
+      body: { profile_id: profileId, nome: nomePagador.trim(), cpfCnpj: doc, dataNascimento: nasc },
     })
     setAssinando(false)
     if (error || data?.error) {
@@ -200,16 +215,16 @@ export function VipArea({
   }
 
   return (
-    <section className="mt-10 rounded-3xl border border-rose-500/30 bg-gradient-to-b from-rose-950/20 to-noir-900/40 p-6">
+    <section className="mt-10 rounded-3xl border border-gold-500/30 bg-gradient-to-b from-gold-500/10 to-noir-900/40 p-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="font-display text-2xl text-rose-200">🔒 Área restrita para membros</h2>
+          <h2 className="font-display text-2xl text-gold-300">🔒 Área restrita para membros</h2>
           <p className="mt-1 text-sm text-muted">
             Conteúdo exclusivo de {nome}, disponível para assinantes VIP.
           </p>
         </div>
         {total > 0 && (
-          <span className="rounded-full border border-rose-500/40 px-3 py-1 text-xs text-rose-200">
+          <span className="rounded-full border border-gold-500/40 px-3 py-1 text-xs text-gold-300">
             {total} {total === 1 ? 'conteúdo exclusivo' : 'conteúdos exclusivos'}
           </span>
         )}
@@ -230,7 +245,7 @@ export function VipArea({
               </p>
               <button
                 onClick={iniciarAssinatura}
-                className="mt-5 inline-block rounded-xl bg-gradient-to-r from-rose-500 to-red-600 px-7 py-3.5 font-semibold text-white transition hover:brightness-110"
+                className="mt-5 inline-block rounded-xl bg-gradient-to-r from-gold-500 to-gold-700 px-7 py-3.5 font-semibold text-white transition hover:brightness-110"
               >
                 {`Assinar por ${fmtBRL(vipPreco)} / mês`}
               </button>
@@ -247,7 +262,8 @@ export function VipArea({
                 Pagamento via Pix — {fmtBRL(vipPreco)}
               </p>
               <p className="mt-1 mb-4 text-center text-xs text-muted">
-                Precisamos do seu nome e CPF para emitir a cobrança.
+                Conteúdo +18. Precisamos do seu nome, CPF e data de nascimento para emitir a
+                cobrança e confirmar que você é maior de idade.
               </p>
               <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted">
                 Nome completo
@@ -255,7 +271,7 @@ export function VipArea({
               <input
                 value={nomePagador}
                 onChange={(e) => setNomePagador(e.target.value)}
-                className="mb-3 w-full rounded-xl border border-line bg-noir-800 px-4 py-3 text-sm outline-none focus:border-rose-500"
+                className="mb-3 w-full rounded-xl border border-line bg-noir-800 px-4 py-3 text-sm outline-none focus:border-gold-500"
               />
               <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted">
                 CPF
@@ -265,12 +281,21 @@ export function VipArea({
                 onChange={(e) => setCpf(e.target.value)}
                 inputMode="numeric"
                 placeholder="000.000.000-00"
-                className="w-full rounded-xl border border-line bg-noir-800 px-4 py-3 text-sm outline-none focus:border-rose-500"
+                className="mb-3 w-full rounded-xl border border-line bg-noir-800 px-4 py-3 text-sm outline-none focus:border-gold-500"
+              />
+              <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted">
+                Data de nascimento
+              </label>
+              <input
+                type="date"
+                value={nasc}
+                onChange={(e) => setNasc(e.target.value)}
+                className="w-full rounded-xl border border-line bg-noir-800 px-4 py-3 text-sm outline-none focus:border-gold-500"
               />
               <button
                 onClick={gerarPix}
                 disabled={assinando}
-                className="mt-5 w-full rounded-xl bg-gradient-to-r from-rose-500 to-red-600 px-7 py-3.5 font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
+                className="mt-5 w-full rounded-xl bg-gradient-to-r from-gold-500 to-gold-700 px-7 py-3.5 font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
               >
                 {assinando ? 'Gerando Pix…' : 'Gerar Pix'}
               </button>
@@ -293,7 +318,7 @@ export function VipArea({
               )}
               <button
                 onClick={copiarPix}
-                className="mt-4 w-full rounded-xl border border-rose-500/50 px-4 py-3 text-sm text-rose-200 transition hover:bg-rose-500/10"
+                className="mt-4 w-full rounded-xl border border-gold-500/50 px-4 py-3 text-sm text-gold-300 transition hover:bg-gold-500/10"
               >
                 {copiado ? '✓ Código copiado' : 'Copiar código Pix (copia e cola)'}
               </button>
@@ -319,7 +344,7 @@ export function VipArea({
       {liberado && (
         <div className="mt-6">
           {ehDono && (
-            <p className="mb-4 text-xs text-rose-200">
+            <p className="mb-4 text-xs text-gold-300">
               Você está vendo a prévia do seu conteúdo VIP como assinante.
             </p>
           )}
@@ -339,24 +364,14 @@ export function VipArea({
             <div className="grid gap-6 sm:grid-cols-2">
               {midias.map((m) => (
                 <div key={m.id} className="rounded-2xl border border-line bg-noir-900/60 p-3">
-                  {m.tipo === 'video' ? (
-                    <video
-                      src={m.signedUrl}
-                      controls
-                      controlsList="nodownload"
-                      disablePictureInPicture
-                      className="w-full rounded-xl"
-                    />
-                  ) : (
-                    <img src={m.signedUrl} alt="" className="w-full rounded-xl" />
-                  )}
+                  <GaleriaItem src={m.signedUrl} tipo={m.tipo} />
 
                   {/* comentários */}
                   <div className="mt-3 space-y-2">
                     {(comentarios[m.id] ?? []).map((c) => (
                       <div key={c.id} className="flex items-start justify-between gap-2 text-sm">
                         <p>
-                          <span className="text-rose-200">{c.autor_nome || 'Membro'}:</span>{' '}
+                          <span className="text-gold-300">{c.autor_nome || 'Membro'}:</span>{' '}
                           <span className="text-ink/90">{c.texto}</span>
                         </p>
                         {(ehDono || isAdmin || c.author_id === user?.id) && (
@@ -377,11 +392,11 @@ export function VipArea({
                             setRascunho((r) => ({ ...r, [m.id]: e.target.value }))
                           }
                           placeholder="Comentar…"
-                          className="flex-1 rounded-lg border border-line bg-noir-800 px-3 py-1.5 text-sm outline-none focus:border-rose-500"
+                          className="flex-1 rounded-lg border border-line bg-noir-800 px-3 py-1.5 text-sm outline-none focus:border-gold-500"
                         />
                         <button
                           onClick={() => comentar(m.id)}
-                          className="rounded-lg border border-rose-500/50 px-3 py-1.5 text-sm text-rose-200 hover:bg-rose-500/10"
+                          className="rounded-lg border border-gold-500/50 px-3 py-1.5 text-sm text-gold-300 hover:bg-gold-500/10"
                         >
                           Enviar
                         </button>
