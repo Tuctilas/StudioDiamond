@@ -44,6 +44,8 @@ export function VipArea({
   const [copiado, setCopiado] = useState(false)
 
   const ehDono = !!user && user.id === donoUserId
+  // Marca d'água: identifica quem está vendo (inibe/rastreia vazamento).
+  const marca = user?.email ?? ''
 
   useEffect(() => {
     let cancel = false
@@ -363,8 +365,22 @@ export function VipArea({
           ) : (
             <div className="grid gap-6 sm:grid-cols-2">
               {midias.map((m) => (
-                <div key={m.id} className="rounded-2xl border border-line bg-noir-900/60 p-3">
-                  <GaleriaItem src={m.signedUrl} tipo={m.tipo} />
+                <div
+                  key={m.id}
+                  className={`rounded-2xl border border-line bg-noir-900/60 p-3 ${
+                    m.tamanho === 'grande' ? 'sm:col-span-2' : ''
+                  }`}
+                >
+                  <div className="relative">
+                    <GaleriaItem src={m.signedUrl} tipo={m.tipo} grande={m.tamanho === 'grande'} />
+                    {marca && (
+                      <div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden">
+                        <span className="-rotate-[18deg] select-none whitespace-nowrap text-xs font-semibold uppercase tracking-[0.3em] text-white/15">
+                          {marca}
+                        </span>
+                      </div>
+                    )}
+                  </div>
 
                   {/* comentários */}
                   <div className="mt-3 space-y-2">

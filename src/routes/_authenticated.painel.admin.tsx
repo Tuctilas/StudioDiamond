@@ -107,7 +107,9 @@ function Moderacao() {
                 {aba !== 'active' && (
                   <button
                     onClick={() => mudarStatus(p, 'active')}
-                    className="rounded-lg border border-emerald-500/50 px-3 py-1.5 text-emerald-400 hover:bg-emerald-500/10"
+                    disabled={!p.verificado}
+                    title={p.verificado ? '' : 'Marque "verificada" antes de aprovar.'}
+                    className="rounded-lg border border-emerald-500/50 px-3 py-1.5 text-emerald-400 transition hover:bg-emerald-500/10 disabled:cursor-not-allowed disabled:border-line disabled:text-muted disabled:hover:bg-transparent"
                   >
                     Aprovar
                   </button>

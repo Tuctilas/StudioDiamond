@@ -1,19 +1,25 @@
-import { useState } from 'react'
-
 /**
- * Item de galeria (foto ou vídeo) com:
- *  - orientação automática: retrato fica menor (1 coluna), paisagem ocupa a largura toda;
- *  - sem download: vídeo abre/cresce/tela cheia, mas sem botão de baixar; bloqueia menu de contexto.
- * Usado tanto na galeria pública (comum) quanto na área VIP.
+ * Item de galeria (foto ou vídeo) com tamanho escolhido pela modelo:
+ *  - grande = ocupa 2 colunas, em paisagem (3:2);
+ *  - pequeno = 1 coluna, em retrato (3:4).
+ * Sem download: vídeo abre/cresce/tela cheia, mas sem baixar; menu de contexto bloqueado.
+ * Usado na galeria pública (comum) e na área VIP.
  */
-export function GaleriaItem({ src, tipo }: { src: string; tipo: 'image' | 'video' }) {
-  const [paisagem, setPaisagem] = useState(false)
+export function GaleriaItem({
+  src,
+  tipo,
+  grande = false,
+}: {
+  src: string
+  tipo: 'image' | 'video'
+  grande?: boolean
+}) {
   const semMenu = (e: React.MouseEvent) => e.preventDefault()
   const classe = `w-full rounded-xl border border-line object-cover ${
-    paisagem ? 'aspect-[3/2]' : 'aspect-[2/3]'
+    grande ? 'aspect-[3/2]' : 'aspect-[3/4]'
   }`
   return (
-    <div className={paisagem ? 'col-span-full' : ''}>
+    <div className={grande ? 'col-span-2' : ''}>
       {tipo === 'video' ? (
         <video
           src={src}
@@ -23,9 +29,6 @@ export function GaleriaItem({ src, tipo }: { src: string; tipo: 'image' | 'video
           controlsList="nodownload noremoteplayback noplaybackrate"
           disablePictureInPicture
           onContextMenu={semMenu}
-          onLoadedMetadata={(e) =>
-            setPaisagem(e.currentTarget.videoWidth > e.currentTarget.videoHeight)
-          }
           className={classe}
         />
       ) : (
@@ -35,7 +38,6 @@ export function GaleriaItem({ src, tipo }: { src: string; tipo: 'image' | 'video
           loading="lazy"
           draggable={false}
           onContextMenu={semMenu}
-          onLoad={(e) => setPaisagem(e.currentTarget.naturalWidth > e.currentTarget.naturalHeight)}
           className={classe}
         />
       )}

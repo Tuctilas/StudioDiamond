@@ -89,7 +89,7 @@ function PainelVip() {
     return (
       <div>
         <h1 className="font-display text-3xl">Conteúdo VIP</h1>
-        <div className="mt-6 rounded-2xl border border-rose-500/30 bg-rose-950/10 p-8 text-center">
+        <div className="mt-6 rounded-2xl border border-gold-500/30 bg-gold-500/5 p-8 text-center">
           <div className="text-3xl">🔒</div>
           <p className="mt-3 font-display text-lg text-ink">
             Venda de conteúdo disponível a partir do plano Ouro
@@ -180,6 +180,12 @@ function PainelVip() {
     await recarregar(perfil!.id)
   }
 
+  async function alternarTamanhoVip(m: VipMedia) {
+    const novo = m.tamanho === 'grande' ? 'pequeno' : 'grande'
+    await supabase.from('vip_media').update({ tamanho: novo }).eq('id', m.id)
+    setMidias((l) => l.map((x) => (x.id === m.id ? { ...x, tamanho: novo } : x)))
+  }
+
   async function removerComentario(c: VipComment) {
     await supabase.from('vip_comments').delete().eq('id', c.id)
     setComentarios((l) => l.filter((x) => x.id !== c.id))
@@ -208,7 +214,7 @@ function PainelVip() {
               type="checkbox"
               checked={ativo}
               onChange={(e) => setAtivo(e.target.checked)}
-              className="accent-rose-500"
+              className="accent-gold-500"
             />
             Área VIP ativa
           </label>
@@ -238,7 +244,7 @@ function PainelVip() {
       <p className="mt-6 text-sm text-muted">
         O conteúdo só vai para a área restrita depois que você clicar em <b>Publicar</b>.
       </p>
-      <label className="mt-2 inline-block cursor-pointer rounded-xl border border-rose-500/40 px-6 py-3 text-sm font-semibold text-rose-200 transition hover:bg-rose-500/10">
+      <label className="mt-2 inline-block cursor-pointer rounded-xl border border-gold-500/40 px-6 py-3 text-sm font-semibold text-gold-300 transition hover:bg-gold-500/10">
         + Selecionar conteúdo VIP ({midias.length}/{MAX_VIP})
         <input
           type="file"
@@ -253,9 +259,9 @@ function PainelVip() {
 
       {/* PARA PUBLICAR (revisão) */}
       {pendentes.length > 0 && (
-        <div className="mt-6 rounded-2xl border border-rose-500/30 bg-rose-950/10 p-5">
+        <div className="mt-6 rounded-2xl border border-gold-500/30 bg-gold-500/5 p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="font-display text-lg text-rose-200">Para publicar ({pendentes.length})</h2>
+            <h2 className="font-display text-lg text-gold-300">Para publicar ({pendentes.length})</h2>
             <div className="flex gap-2">
               <button
                 onClick={limparPendentes}
@@ -267,7 +273,7 @@ function PainelVip() {
               <button
                 onClick={publicar}
                 disabled={busy}
-                className="rounded-lg bg-gradient-to-r from-rose-500 to-red-600 px-4 py-1.5 text-xs font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
+                className="rounded-lg bg-gradient-to-r from-gold-500 to-gold-700 px-4 py-1.5 text-xs font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
               >
                 {busy ? 'Publicando…' : `Publicar ${pendentes.length} item(ns)`}
               </button>
@@ -275,7 +281,7 @@ function PainelVip() {
           </div>
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
             {pendentes.map((p, i) => (
-              <div key={i} className="relative overflow-hidden rounded-xl border border-rose-500/40">
+              <div key={i} className="relative overflow-hidden rounded-xl border border-gold-500/40">
                 {p.tipo === 'video' ? (
                   <video src={p.preview} muted className="aspect-[3/4] w-full object-cover" />
                 ) : (
@@ -300,13 +306,18 @@ function PainelVip() {
           <div key={m.id} className="relative rounded-xl border border-line p-2 text-center">
             <div className="flex aspect-[3/4] items-center justify-center rounded bg-noir-800 text-xs text-muted">
               {m.tipo === 'video' ? '🎬 vídeo' : '🖼 foto'}
+              {m.tamanho === 'grande' && (
+                <span className="ml-1 text-gold-400">· grande</span>
+              )}
             </div>
-            <button
-              onClick={() => removerMidia(m)}
-              className="mt-2 text-xs text-red-400 hover:underline"
-            >
-              remover
-            </button>
+            <div className="mt-2 flex justify-center gap-3 text-xs">
+              <button onClick={() => alternarTamanhoVip(m)} className="text-gold-400 hover:underline">
+                {m.tamanho === 'grande' ? 'menor' : 'maior'}
+              </button>
+              <button onClick={() => removerMidia(m)} className="text-red-400 hover:underline">
+                remover
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -324,7 +335,7 @@ function PainelVip() {
             className="flex items-start justify-between gap-3 rounded-xl border border-line bg-noir-900 px-4 py-3 text-sm"
           >
             <p>
-              <span className="text-rose-200">{c.autor_nome || 'Membro'}:</span>{' '}
+              <span className="text-gold-300">{c.autor_nome || 'Membro'}:</span>{' '}
               <span className="text-ink/90">{c.texto}</span>
             </p>
             <button

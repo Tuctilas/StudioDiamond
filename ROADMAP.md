@@ -7,8 +7,7 @@ Lista das próximas alterações, em ordem de prioridade. Atualizado em jun/2026
 - Filtros na lateral (cidade, categoria, fetiche, idade, valor) com multi-seleção.
 - Cadastro rico da modelo (perfil físico, persona, serviços, fetiches, conteúdo, logística, idiomas, regras).
 - Elogios (geral + por modelo) com moderação.
-- Planos de vitrine: **Ruby R$1.900 · Diamante R$1.500 · Ouro R$800 · Prata R$400**, com selo e ordenação na vitrine.
-- Promoção de lançamento (30% off p/ os 20 primeiros) — só exibição por enquanto.
+- Planos de vitrine (lançamento, jun/2026): **Ruby R$490 · Diamante R$350 · Ouro R$190 · Prata R$90**, com selo e ordenação na vitrine. (Baixados do patamar antigo 1.900/1.500/800/400 pra entrar abaixo do mercado; subir quando o site ganhar tração.)
 - Bloqueio de download das mídias (deter, não DRM).
 - Bloco legal: Termos reescritos + verificação (documento/vídeo em bucket privado, aceite com data/hora).
 - **Fase 2 VIP**: área restrita por modelo, comentários moderáveis, carteira e **split** (Ruby 0%, Ouro/Diamante 15%, Prata bloqueado). A modelo define o próprio preço do conteúdo. **Pagamento ainda SIMULADO.**
@@ -31,10 +30,9 @@ A peça que falta para o dinheiro existir de verdade. **Provedor escolhido: Asaa
 1. **Onboarding de recebimento da modelo**: ✅ captura da **chave Pix** no painel (Carteira; saque bloqueado sem chave — rode `supabase/pix.sql`). Falta criar a subconta no provedor (KYC).
 2. **Cobrança do plano de vitrine (a modelo paga)**: 🟡 código pronto — página `/painel/plano` + Pix via Asaas (mesma `asaas-criar-cobranca` com `tipo:'plano'`); ao confirmar, o webhook define `plano` + `plano_expira` (30d) sozinho. NÃO publica o perfil (verificação segue com o admin). Falta deploy + teste. Recorrência automática fica pra depois. Ver `supabase/plano-pagamento.sql`.
 3. **Assinatura VIP (o cliente paga)**: 🟡 código pronto (Edge Functions `asaas-criar-cobranca` + `asaas-webhook`, tabela `vip_charges`, checkout Pix na VipArea com split 85/15). Falta **deployar as funções + configurar secrets/webhook + testar no sandbox**. Ver `supabase/asaas-pagamentos.sql` e `supabase/functions/`.
-4. **Saque real**: o "Sacar" vira Pix de verdade via API do provedor; status atualizado por **webhook**.
+4. ✅ **Saque real**: Edge Function `asaas-saque` — o admin, no painel de Saques, paga via **transferência Pix do Asaas** pra chave da modelo e o saque vira "pago". (Status final por webhook de transfer fica como melhoria futura.)
 5. **Webhooks** de pagamento aprovado/estornado/assinatura cancelada.
-6. **Promoção dos 20 primeiros**: aplicar o desconto de fato na cobrança (hoje é só visual).
-7. **Expiração de plano (`plano_expira`)**: quando vencer, rebaixar/pausar o anúncio automaticamente (cron/checagem).
+7. ✅ **Expiração de plano (`plano_expira`)**: função `expirar_planos()` rebaixa planos vencidos (plano → null) + agendamento diário via pg_cron. Rodar `supabase/plano-expiracao.sql` (e habilitar a extensão pg_cron).
 
 ## 🟠 Fase 4 — Experiência de cliente (quem assina)
 8. ✅ **Login cliente x modelo separado**: cadastro escolhe o tipo; papel `cliente` salvo via metadata + trigger; painel se adapta (`isCliente`). Falta só o fluxo de e-mail de confirmação caprichado por papel.
@@ -49,18 +47,18 @@ Os planos prometem isso; ainda não existe na página pública:
 14. **Banner/destaque na home**: área nobre com a foto de chamada das Ruby/Diamante (hoje só ordenamos por plano).
 
 ## 🟢 Ajustes e pendências
-15. **Aprovação condicionada à verificação**: admin só "Aprovar" depois de marcar verificada.
+15. ✅ **Aprovação condicionada à verificação**: o botão "Aprovar" na moderação fica bloqueado até a modelo ser marcada como verificada.
 16. **E-mails transacionais**: aprovação do anúncio, novo assinante, status de saque (hoje promete e-mail mas não envia).
 17. ✅ **Política de Privacidade (LGPD)**: `/privacidade` reescrita completa (dados coletados por tipo de usuário, bases legais, operadores Supabase/Asaas/Cloudflare, retenção, direitos art. 18, verificação de idade). Falta revisão jurídica (item 18).
 18. **Revisão jurídica por advogado** dos Termos/Privacidade antes de ir ao ar pra valer.
 19. ✅ **Menu mobile**: header com menu hambúrguer no celular (Acompanhantes atrás do botão; CTA "Anunciar" sempre visível).
-20. **Proteção extra do conteúdo VIP**: marca d'água com id do assinante (inibe vazamento), URLs assinadas curtas.
+20. 🟡 **Proteção extra do conteúdo VIP**: ✅ marca d'água com o e-mail de quem está vendo sobre cada mídia VIP (inibe/rastreia vazamento). Falta, se quiser, URLs assinadas mais curtas.
 21. **Migração para o domínio/projeto definitivo**: confirmar se o Supabase é o `hnkviyz...` mesmo e trocar a senha do banco (passou pelo chat).
 
 ---
 
 ## Decisões em aberto
-- **Preços finais** dos planos e da promo (valores atuais são ponto de partida).
+- **Preços finais** dos planos (lançamento: Ruby 490 / Diamante 350 / Ouro 190 / Prata 90; sem promo de desconto).
 
 ## Decididas
 - **Provedor de pagamento: Asaas** (Pix + split + subconta). Próximo: abrir conta + KYC + integração.

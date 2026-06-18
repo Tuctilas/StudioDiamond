@@ -221,7 +221,7 @@ function Perfil() {
                 {p.fotos
                   .filter((f) => f.id !== capa?.id)
                   .map((f) => (
-                    <GaleriaItem key={f.id} src={f.url} tipo={f.tipo} />
+                    <GaleriaItem key={f.id} src={f.url} tipo={f.tipo} grande={f.tamanho === 'grande'} />
                   ))}
               </div>
             </section>

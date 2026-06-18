@@ -108,7 +108,7 @@ create table if not exists public.wallet_entries (
   valor numeric not null check (valor >= 0),
   descricao text,
   status text not null default 'confirmado'
-    check (status in ('confirmado','pendente','pago','rejeitado')),
+    check (status in ('confirmado','pendente','processando','pago','rejeitado')),
   created_at timestamptz not null default now()
 );
 create index if not exists wallet_profile_idx on public.wallet_entries(profile_id, created_at desc);

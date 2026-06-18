@@ -21,7 +21,7 @@ export const PLANOS: Plano[] = [
     slug: 'ruby',
     nome: 'Ruby',
     rank: 4,
-    precoMes: 1900,
+    precoMes: 490,
     popular: true,
     vendeConteudo: true,
     taxaVendaPct: 0,
@@ -38,7 +38,7 @@ export const PLANOS: Plano[] = [
     slug: 'diamante',
     nome: 'Diamante',
     rank: 3,
-    precoMes: 1500,
+    precoMes: 350,
     vendeConteudo: true,
     taxaVendaPct: 15,
     resumo: 'Alto destaque e venda de conteúdo.',
@@ -53,7 +53,7 @@ export const PLANOS: Plano[] = [
     slug: 'ouro',
     nome: 'Ouro',
     rank: 2,
-    precoMes: 800,
+    precoMes: 190,
     vendeConteudo: true,
     taxaVendaPct: 15,
     resumo: 'Destaque forte e já com venda de conteúdo.',
@@ -68,7 +68,7 @@ export const PLANOS: Plano[] = [
     slug: 'prata',
     nome: 'Prata',
     rank: 1,
-    precoMes: 400,
+    precoMes: 90,
     vendeConteudo: false,
     taxaVendaPct: 0,
     resumo: 'Sua vitrine publicada e ativa.',
@@ -93,9 +93,3 @@ export const PLANO_SELO: Record<PlanoSlug, string> = {
   prata: 'from-zinc-300 to-zinc-400 text-noir-950',
 }
 
-/** Promoção de lançamento: 30% off para os N primeiros cadastros. */
-export const PROMO = { vagas: 20, desconto: 0.3 }
-
-export function precoComPromo(precoMes: number): number {
-  return Math.round((precoMes * (1 - PROMO.desconto)) / 10) * 10
-}

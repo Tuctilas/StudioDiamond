@@ -17,9 +17,7 @@ const cors = {
 const ASAAS_API_KEY = Deno.env.get('ASAAS_API_KEY')!
 const ASAAS_BASE_URL = Deno.env.get('ASAAS_BASE_URL') ?? 'https://api-sandbox.asaas.com/v3'
 
-const PRECOS_PLANO: Record<string, number> = { ruby: 1900, diamante: 1500, ouro: 800, prata: 400 }
-const PROMO_VAGAS = 20
-const PROMO_DESCONTO = 0.3
+const PRECOS_PLANO: Record<string, number> = { ruby: 490, diamante: 350, ouro: 190, prata: 90 }
 
 /** Idade a partir de yyyy-mm-dd. Retorna -1 se a data for inválida. */
 function idadeDe(nasc: string): number {
@@ -103,12 +101,7 @@ Deno.serve(async (req) => {
         .maybeSingle()
       if (!perfil) return json({ error: 'Crie seu perfil antes de contratar um plano.' }, 400)
 
-      let valor = PRECOS_PLANO[plano]
-      const { data: total } = await admin.rpc('total_cadastros')
-      if (typeof total === 'number' && total < PROMO_VAGAS) {
-        valor = Math.round((valor * (1 - PROMO_DESCONTO)) / 10) * 10 // 30% off no 1º mês
-      }
-
+      const valor = PRECOS_PLANO[plano]
       const r = await gerarPix(valor, `Plano ${plano} — Studio Diamond`, `plano:${perfil.id}:${plano}`)
       await admin.from('plan_charges').insert({
         profile_id: perfil.id,

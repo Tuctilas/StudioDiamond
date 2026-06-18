@@ -138,6 +138,12 @@ function Fotos() {
     await recarregar(perfilId)
   }
 
+  async function alternarTamanho(f: ProfilePhoto) {
+    const novo = f.tamanho === 'grande' ? 'pequeno' : 'grande'
+    await supabase.from('profile_photos').update({ tamanho: novo }).eq('id', f.id)
+    setFotos((l) => l.map((x) => (x.id === f.id ? { ...x, tamanho: novo } : x)))
+  }
+
   // Vídeo de capa: selecionar só prepara; publicar é que envia.
   function selecionarVideo(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -349,6 +355,9 @@ function Fotos() {
               ) : (
                 <span />
               )}
+              <button onClick={() => alternarTamanho(f)} className="text-gold-400 hover:underline">
+                {f.tamanho === 'grande' ? '⊟ menor' : '⊞ maior'}
+              </button>
               <button onClick={() => remover(f)} className="text-red-400 hover:underline">
                 remover
               </button>

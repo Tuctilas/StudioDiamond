@@ -1,15 +1,10 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 
-import { PLANOS, PLANO_SELO, PROMO, precoComPromo } from '#/lib/planos'
-import { getTotalCadastros } from '#/lib/queries'
+import { PLANOS, PLANO_SELO } from '#/lib/planos'
 import { fmtBRL } from '#/lib/supabase'
 import { useAuth } from '#/lib/useAuth'
 
 export const Route = createFileRoute('/anuncie')({
-  loader: async () => {
-    const total = await getTotalCadastros()
-    return { total }
-  },
   head: () => ({
     meta: [
       { title: 'Anuncie no Studio Diamond — Planos de Vitrine' },
@@ -24,10 +19,7 @@ export const Route = createFileRoute('/anuncie')({
 })
 
 function Anuncie() {
-  const { total } = Route.useLoaderData()
   const { session } = useAuth()
-  const vagasRestantes = Math.max(0, PROMO.vagas - total)
-  const promoAtiva = vagasRestantes > 0
   // Logado vai contratar o plano; deslogado vai cadastrar primeiro.
   const destino = session ? '/painel/plano' : '/auth'
 
@@ -42,26 +34,9 @@ function Anuncie() {
         </p>
       </div>
 
-      {/* PROMO DE LANÇAMENTO */}
-      {promoAtiva && (
-        <div className="mx-auto mt-8 max-w-2xl rounded-2xl border border-gold-500/50 bg-gradient-to-r from-gold-500/10 to-transparent p-5 text-center">
-          <div className="font-display text-lg text-gold-300">
-            🎉 Promoção de lançamento — 30% OFF
-          </div>
-          <p className="mt-1 text-sm text-muted">
-            Para os <b className="text-ink">{PROMO.vagas} primeiros cadastros</b>. Restam{' '}
-            <b className="text-gold-300">
-              {vagasRestantes} {vagasRestantes === 1 ? 'vaga' : 'vagas'}
-            </b>{' '}
-            com desconto no primeiro mês.
-          </p>
-        </div>
-      )}
-
       {/* PLANOS */}
       <div className="mt-12 grid gap-6 lg:grid-cols-4">
         {PLANOS.map((p) => {
-          const promo = precoComPromo(p.precoMes)
           return (
             <div
               key={p.slug}
@@ -82,20 +57,10 @@ function Anuncie() {
               <p className="mt-3 text-sm text-muted">{p.resumo}</p>
 
               <div className="mt-5">
-                {promoAtiva ? (
-                  <>
-                    <div className="text-xs text-muted line-through">{fmtBRL(p.precoMes)}</div>
-                    <div className="font-display text-3xl text-gold-300">
-                      {fmtBRL(promo)}
-                      <span className="text-sm font-normal text-muted"> / 1º mês</span>
-                    </div>
-                  </>
-                ) : (
-                  <div className="font-display text-3xl">
-                    {fmtBRL(p.precoMes)}
-                    <span className="text-sm font-normal text-muted"> / mês</span>
-                  </div>
-                )}
+                <div className="font-display text-3xl text-gold-300">
+                  {fmtBRL(p.precoMes)}
+                  <span className="text-sm font-normal text-muted"> / mês</span>
+                </div>
               </div>
 
               {/* selo de venda de conteúdo */}

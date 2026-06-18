@@ -100,8 +100,8 @@ function MinhasAssinaturas() {
                       params={{ slug: m.slug }}
                       className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
                         a.ativa
-                          ? 'border border-rose-500/50 text-rose-200 hover:bg-rose-500/10'
-                          : 'bg-gradient-to-r from-rose-500 to-red-600 text-white hover:brightness-110'
+                          ? 'border border-gold-500/50 text-gold-300 hover:bg-gold-500/10'
+                          : 'bg-gradient-to-r from-gold-500 to-gold-700 text-white hover:brightness-110'
                       }`}
                     >
                       {a.ativa ? 'Acessar conteúdo' : 'Renovar'}

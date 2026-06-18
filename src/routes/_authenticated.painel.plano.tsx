@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 
-import { PLANOS, PLANO_SELO, PROMO, precoComPromo } from '#/lib/planos'
-import { getTotalCadastros } from '#/lib/queries'
+import { PLANOS, PLANO_SELO } from '#/lib/planos'
 import { supabase } from '#/lib/supabase'
 import type { PlanoSlug } from '#/lib/supabase'
 import { fmtBRL } from '#/lib/supabase'
@@ -17,7 +16,6 @@ function ContratarPlano() {
   const [perfilId, setPerfilId] = useState<string | null>(null)
   const [planoAtual, setPlanoAtual] = useState<PlanoSlug | null>(null)
   const [expira, setExpira] = useState<string | null>(null)
-  const [total, setTotal] = useState(0)
   const [carregando, setCarregando] = useState(true)
   // checkout
   const [escolhido, setEscolhido] = useState<PlanoSlug | null>(null)
@@ -37,14 +35,12 @@ function ContratarPlano() {
         .select('id, plano, plano_expira')
         .eq('user_id', user!.id)
         .maybeSingle()
-      const t = await getTotalCadastros()
       if (cancel) return
       if (p) {
         setPerfilId(p.id)
         setPlanoAtual(p.plano)
         setExpira(p.plano_expira)
       }
-      setTotal(t)
       setCarregando(false)
     }
     carregar()
@@ -69,8 +65,6 @@ function ContratarPlano() {
     }, 4000)
     return () => clearInterval(t)
   }, [pix, perfilId, escolhido])
-
-  const promoAtiva = total < PROMO.vagas
 
   if (carregando) return <p className="text-sm text-muted">Carregando…</p>
   if (!perfilId) {
@@ -201,7 +195,6 @@ function ContratarPlano() {
         /* GRADE DE PLANOS */
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {PLANOS.map((p) => {
-            const promo = precoComPromo(p.precoMes)
             return (
               <div
                 key={p.slug}
@@ -219,20 +212,10 @@ function ContratarPlano() {
                 </span>
                 <p className="mt-3 text-xs text-muted">{p.resumo}</p>
                 <div className="mt-3">
-                  {promoAtiva ? (
-                    <>
-                      <div className="text-xs text-muted line-through">{fmtBRL(p.precoMes)}</div>
-                      <div className="font-display text-2xl text-gold-300">
-                        {fmtBRL(promo)}
-                        <span className="text-xs font-normal text-muted"> / 1º mês</span>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="font-display text-2xl">
-                      {fmtBRL(p.precoMes)}
-                      <span className="text-xs font-normal text-muted"> / mês</span>
-                    </div>
-                  )}
+                  <div className="font-display text-2xl text-gold-300">
+                    {fmtBRL(p.precoMes)}
+                    <span className="text-xs font-normal text-muted"> / mês</span>
+                  </div>
                 </div>
                 <div className="mt-2 text-xs">
                   {p.vendeConteudo ? (

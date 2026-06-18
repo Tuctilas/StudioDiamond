@@ -75,9 +75,9 @@ function Assinantes() {
         .
       </p>
 
-      <div className="mt-6 rounded-2xl border border-rose-500/30 bg-gradient-to-r from-rose-950/20 to-transparent p-6">
+      <div className="mt-6 rounded-2xl border border-gold-500/30 bg-gradient-to-r from-gold-500/10 to-transparent p-6">
         <div className="text-xs uppercase tracking-wider text-muted">Assinantes ativos</div>
-        <div className="mt-1 font-display text-4xl text-rose-200">{ativos.length}</div>
+        <div className="mt-1 font-display text-4xl text-gold-300">{ativos.length}</div>
       </div>
 
       <div className="mt-6 space-y-2">

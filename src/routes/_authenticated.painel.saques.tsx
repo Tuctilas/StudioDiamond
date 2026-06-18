@@ -16,6 +16,8 @@ function Saques() {
   const { loading, isAdmin } = useAuth()
   const [aba, setAba] = useState<WalletStatus>('pendente')
   const [lista, setLista] = useState<SaqueRow[]>([])
+  const [pagandoId, setPagandoId] = useState<string | null>(null)
+  const [msg, setMsg] = useState('')
 
   useEffect(() => {
     if (!isAdmin) return
@@ -36,12 +38,34 @@ function Saques() {
     setLista((l) => l.filter((x) => x.id !== s.id))
   }
 
+  // Paga de verdade via Pix (transfer do Asaas) e marca como pago.
+  async function pagar(s: SaqueRow) {
+    if (
+      !window.confirm(
+        `Pagar ${fmtBRL(Number(s.valor))} via Pix para ${s.profiles?.nome_exibicao ?? 'a modelo'}?`,
+      )
+    )
+      return
+    setMsg('')
+    setPagandoId(s.id)
+    const { data, error } = await supabase.functions.invoke('asaas-saque', {
+      body: { wallet_entry_id: s.id },
+    })
+    setPagandoId(null)
+    if (error || data?.error) {
+      setMsg(data?.error ?? error?.message ?? 'Falha ao pagar via Pix.')
+      return
+    }
+    setLista((l) => l.filter((x) => x.id !== s.id))
+  }
+
   return (
     <div>
       <h1 className="font-display text-3xl">Saques</h1>
       <p className="mt-1 text-sm text-muted">
         Aprove (pague via Pix da modelo) ou rejeite as solicitações de saque.
       </p>
+      {msg && <p className="mt-3 text-sm text-red-400">{msg}</p>}
 
       <div className="mt-5 flex gap-2 text-sm">
         {(
@@ -81,10 +105,11 @@ function Saques() {
             {aba === 'pendente' && (
               <div className="flex flex-wrap gap-2 text-xs">
                 <button
-                  onClick={() => mudar(s, 'pago')}
-                  className="rounded-lg border border-emerald-500/50 px-3 py-1.5 text-emerald-400 hover:bg-emerald-500/10"
+                  onClick={() => pagar(s)}
+                  disabled={pagandoId === s.id}
+                  className="rounded-lg border border-emerald-500/50 px-3 py-1.5 text-emerald-400 transition hover:bg-emerald-500/10 disabled:opacity-50"
                 >
-                  Marcar pago
+                  {pagandoId === s.id ? 'Pagando…' : 'Pagar via Pix'}
                 </button>
                 <button
                   onClick={() => mudar(s, 'rejeitado')}

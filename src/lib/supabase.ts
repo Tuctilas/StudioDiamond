@@ -77,6 +77,7 @@ export interface VipMedia {
   path: string
   tipo: 'image' | 'video'
   ordem: number
+  tamanho: 'pequeno' | 'grande'
   created_at: string
 }
 
@@ -90,7 +91,7 @@ export interface VipComment {
   created_at: string
 }
 
-export type WalletStatus = 'confirmado' | 'pendente' | 'pago' | 'rejeitado'
+export type WalletStatus = 'confirmado' | 'pendente' | 'processando' | 'pago' | 'rejeitado'
 
 export interface WalletEntry {
   id: string
@@ -111,6 +112,7 @@ export interface ProfilePhoto {
   ordem: number
   is_capa: boolean
   tipo: 'image' | 'video'
+  tamanho: 'pequeno' | 'grande'
 }
 
 export interface Cidade {

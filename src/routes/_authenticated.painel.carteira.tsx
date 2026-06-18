@@ -21,6 +21,7 @@ function saldoDe(entries: WalletEntry[]): number {
 const STATUS: Record<string, { txt: string; cor: string }> = {
   confirmado: { txt: 'confirmado', cor: 'text-emerald-400' },
   pendente: { txt: 'em análise', cor: 'text-yellow-400' },
+  processando: { txt: 'processando', cor: 'text-yellow-400' },
   pago: { txt: 'pago', cor: 'text-emerald-400' },
   rejeitado: { txt: 'rejeitado', cor: 'text-red-400' },
 }

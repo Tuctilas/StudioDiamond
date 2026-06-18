@@ -102,7 +102,7 @@ function Dashboard() {
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <Link
             to="/painel/assinaturas"
-            className="inline-block rounded-xl bg-gradient-to-r from-rose-500 to-red-600 px-6 py-3 font-semibold text-white transition hover:brightness-110"
+            className="inline-block rounded-xl bg-gradient-to-r from-gold-500 to-gold-700 px-6 py-3 font-semibold text-white transition hover:brightness-110"
           >
             Minhas assinaturas
           </Link>

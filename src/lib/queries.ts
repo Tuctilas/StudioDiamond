@@ -22,7 +22,7 @@ function comCapa(rows: any[]): ProfileComCapa[] {
   })
 }
 
-const SELECT_COM_FOTOS = '*, profile_photos(id, url, ordem, is_capa, tipo)'
+const SELECT_COM_FOTOS = '*, profile_photos(id, url, ordem, is_capa, tipo, tamanho)'
 
 export async function getDestaques(): Promise<ProfileComCapa[]> {
   const { data } = await supabase
@@ -79,7 +79,7 @@ export async function getProfileBySlug(slug: string): Promise<PerfilCompleto | n
   const { data } = await supabase
     .from('profiles')
     .select(
-      '*, profile_photos(id, profile_id, url, ordem, is_capa, tipo), profile_categories(categories(id, slug, nome)), profile_fetiches(fetiches(id, slug, nome)), profile_caracteristicas(caracteristicas(id, grupo, slug, nome, ordem))',
+      '*, profile_photos(id, profile_id, url, ordem, is_capa, tipo, tamanho), profile_categories(categories(id, slug, nome)), profile_fetiches(fetiches(id, slug, nome)), profile_caracteristicas(caracteristicas(id, grupo, slug, nome, ordem))',
     )
     .eq('slug', slug)
     .eq('status', 'active')
@@ -118,12 +118,6 @@ export async function getCaracteristicas(): Promise<Caracteristica[]> {
     .order('grupo')
     .order('ordem')
   return (data ?? []) as Caracteristica[]
-}
-
-/** Total de cadastros (todos os status) — usado na promoção de lançamento. */
-export async function getTotalCadastros(): Promise<number> {
-  const { data } = await supabase.rpc('total_cadastros')
-  return typeof data === 'number' ? data : 0
 }
 
 /** Elogios aprovados (view pública, sem e-mail). Opcionalmente de uma modelo. */
