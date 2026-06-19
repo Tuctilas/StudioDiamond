@@ -2,7 +2,7 @@
 // estorno) e atualiza o banco. É o ÚNICO ponto que libera o acesso VIP.
 //
 // Configure no Asaas (Configurações → Webhooks):
-//   URL: https://<SEU-PROJETO>.supabase.co/functions/v1/asaas-webhook
+//   URL: https://hnkviyzqwywztjkbzevr.supabase.co/functions/v1/asaas-webhook
 //   Token de autenticação: o mesmo valor de ASAAS_WEBHOOK_TOKEN
 //
 // Secrets necessários:

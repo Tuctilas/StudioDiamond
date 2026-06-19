@@ -144,7 +144,9 @@ Deno.serve(async (req) => {
     })
     return json({ paymentId: r.paymentId, invoiceUrl: r.invoiceUrl, pixPayload: r.pixPayload, pixImage: r.pixImage })
   } catch (e) {
-    return json({ error: String((e as Error).message ?? e) }, 500)
+    const msg = String((e as Error).message ?? e)
+    console.error('asaas-criar-cobranca falhou:', msg)
+    return json({ error: msg }, 500)
   }
 })
 

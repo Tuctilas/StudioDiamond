@@ -17,7 +17,7 @@ alter table public.profiles
 create or replace function public.protect_profile()
 returns trigger language plpgsql as $$
 begin
-  if not public.has_role(auth.uid(),'admin') then
+  if auth.uid() is not null and not public.has_role(auth.uid(),'admin') then
     if tg_op = 'INSERT' then
       new.status := 'pending';
       new.destaque := false;

@@ -27,6 +27,17 @@ export const Route = createRootRoute({
       { rel: 'apple-touch-icon', href: '/logo192.png' },
       { rel: 'manifest', href: '/manifest.json' },
     ],
+    // Google Analytics (gtag.js) — `scripts` no head() é renderizado no <head>.
+    scripts: [
+      { src: 'https://www.googletagmanager.com/gtag/js?id=G-6W9MPM6W7Z', async: true },
+      {
+        children:
+          "window.dataLayer = window.dataLayer || [];" +
+          'function gtag(){dataLayer.push(arguments);}' +
+          "gtag('js', new Date());" +
+          "gtag('config', 'G-6W9MPM6W7Z');",
+      },
+    ],
   }),
   shellComponent: RootDocument,
   component: RootLayout,
