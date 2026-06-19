@@ -33,7 +33,8 @@ create policy "vcharges: admin gerencia" on public.vip_charges
 
 -- 2) Confirmação do pagamento (chamada pelo webhook, via service_role).
 --    Idempotente: webhooks podem chegar repetidos.
-create or replace function public.confirmar_pagamento_vip(p_payment_id text)
+drop function if exists public.confirmar_pagamento_vip(text);
+create or replace function public.confirmar_pagamento_vip(p_payment_id text, p_valor_pago numeric default null)
 returns void language plpgsql security definer set search_path = public as $$
 declare
   v_charge public.vip_charges%rowtype;
@@ -43,6 +44,9 @@ begin
     where asaas_payment_id = p_payment_id for update;
   if not found then return; end if;                 -- cobrança desconhecida: ignora
   if v_charge.status = 'confirmed' then return; end if;  -- já processada: idempotente
+  -- Defesa extra: só libera se o valor pago cobre o cobrado (tolerância 1 centavo).
+  -- O Asaas só manda CONFIRMED quando quitado, mas conferimos por segurança.
+  if p_valor_pago is not null and p_valor_pago + 0.01 < v_charge.valor then return; end if;
 
   select plano into v_plano from public.profiles where id = v_charge.profile_id;
   v_taxa := case when v_plano = 'ruby' then 0 else 15 end;     -- só Ruby é isento
@@ -63,7 +67,7 @@ begin
     values (v_charge.profile_id, 'credito', v_liquido,
             'Assinatura VIP (líquido após taxa)', 'confirmado');
 end $$;
-grant execute on function public.confirmar_pagamento_vip(text) to service_role;
+grant execute on function public.confirmar_pagamento_vip(text, numeric) to service_role;
 
 -- ============================================================
 --  IMPORTANTE: a partir de agora a assinatura é liberada SÓ pelo

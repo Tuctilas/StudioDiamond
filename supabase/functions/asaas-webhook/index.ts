@@ -29,6 +29,8 @@ Deno.serve(async (req) => {
   const tipo = evento?.event as string | undefined
   const pagamento = evento?.payment
   const paymentId = pagamento?.id as string | undefined
+  // Valor efetivamente pago (confere contra o cobrado nas funções de confirmação).
+  const valorPago = pagamento?.value != null ? Number(pagamento.value) : null
 
   const admin = createClient(
     Deno.env.get('SUPABASE_URL')!,
@@ -39,8 +41,8 @@ Deno.serve(async (req) => {
     if (tipo === 'PAYMENT_CONFIRMED' || tipo === 'PAYMENT_RECEIVED') {
       // Tenta confirmar como assinatura VIP e como plano — cada função é
       // no-op se o pagamento não estiver na tabela dela (idempotente).
-      await admin.rpc('confirmar_pagamento_vip', { p_payment_id: paymentId })
-      await admin.rpc('confirmar_pagamento_plano', { p_payment_id: paymentId })
+      await admin.rpc('confirmar_pagamento_vip', { p_payment_id: paymentId, p_valor_pago: valorPago })
+      await admin.rpc('confirmar_pagamento_plano', { p_payment_id: paymentId, p_valor_pago: valorPago })
     } else if (tipo === 'PAYMENT_REFUNDED' || tipo === 'PAYMENT_CHARGEBACK_REQUESTED') {
       await admin.from('vip_charges').update({ status: 'refunded' }).eq('asaas_payment_id', paymentId)
       await admin.from('plan_charges').update({ status: 'refunded' }).eq('asaas_payment_id', paymentId)

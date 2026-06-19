@@ -19,6 +19,36 @@ const ASAAS_BASE_URL = Deno.env.get('ASAAS_BASE_URL') ?? 'https://api-sandbox.as
 
 const PRECOS_PLANO: Record<string, number> = { ruby: 490, diamante: 350, ouro: 190, prata: 90 }
 
+/** Valida CPF (11 díg.) ou CNPJ (14 díg.) pelos dígitos verificadores. */
+function docValido(doc: string): boolean {
+  if (doc.length === 11) return cpfValido(doc)
+  if (doc.length === 14) return cnpjValido(doc)
+  return false
+}
+function cpfValido(cpf: string): boolean {
+  if (/^(\d)\1{10}$/.test(cpf)) return false // todos os dígitos iguais
+  const dig = (qtd: number) => {
+    let soma = 0
+    for (let i = 0; i < qtd; i++) soma += Number(cpf[i]) * (qtd + 1 - i)
+    const r = (soma * 10) % 11
+    return r === 10 ? 0 : r
+  }
+  return dig(9) === Number(cpf[9]) && dig(10) === Number(cpf[10])
+}
+function cnpjValido(cnpj: string): boolean {
+  if (/^(\d)\1{13}$/.test(cnpj)) return false
+  const dig = (qtd: number) => {
+    const pesos = qtd === 12
+      ? [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+      : [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+    let soma = 0
+    for (let i = 0; i < qtd; i++) soma += Number(cnpj[i]) * pesos[i]
+    const r = soma % 11
+    return r < 2 ? 0 : 11 - r
+  }
+  return dig(12) === Number(cnpj[12]) && dig(13) === Number(cnpj[13])
+}
+
 /** Idade a partir de yyyy-mm-dd. Retorna -1 se a data for inválida. */
 function idadeDe(nasc: string): number {
   if (!nasc) return -1
@@ -48,7 +78,7 @@ Deno.serve(async (req) => {
     const tipo = body.tipo === 'plano' ? 'plano' : 'vip'
     const nome = String(body.nome ?? '').trim()
     const doc = String(body.cpfCnpj ?? '').replace(/\D/g, '')
-    if (nome.length < 3 || (doc.length !== 11 && doc.length !== 14)) {
+    if (nome.length < 3 || !docValido(doc)) {
       return json({ error: 'Informe nome completo e um CPF/CNPJ válido.' }, 400)
     }
 
@@ -144,6 +174,7 @@ Deno.serve(async (req) => {
     })
     return json({ paymentId: r.paymentId, invoiceUrl: r.invoiceUrl, pixPayload: r.pixPayload, pixImage: r.pixImage })
   } catch (e) {
+    // Observabilidade: registra a falha nos logs do Supabase (sem dados sensíveis).
     const msg = String((e as Error).message ?? e)
     console.error('asaas-criar-cobranca falhou:', msg)
     return json({ error: msg }, 500)

@@ -55,7 +55,8 @@ begin
 end $$;
 
 -- 3) Confirmação do pagamento do plano (chamada pelo webhook). Idempotente.
-create or replace function public.confirmar_pagamento_plano(p_payment_id text)
+drop function if exists public.confirmar_pagamento_plano(text);
+create or replace function public.confirmar_pagamento_plano(p_payment_id text, p_valor_pago numeric default null)
 returns void language plpgsql security definer set search_path = public as $$
 declare v_charge public.plan_charges%rowtype;
 begin
@@ -63,6 +64,8 @@ begin
     where asaas_payment_id = p_payment_id for update;
   if not found then return; end if;
   if v_charge.status = 'confirmed' then return; end if;
+  -- Defesa extra: só libera o plano se o valor pago cobre o cobrado (tolerância 1 centavo).
+  if p_valor_pago is not null and p_valor_pago + 0.01 < v_charge.valor then return; end if;
 
   update public.plan_charges
     set status = 'confirmed', confirmed_at = now() where id = v_charge.id;
@@ -73,4 +76,4 @@ begin
         plano_expira = greatest(coalesce(plano_expira, now()), now()) + interval '30 days'
     where id = v_charge.profile_id;
 end $$;
-grant execute on function public.confirmar_pagamento_plano(text) to service_role;
+grant execute on function public.confirmar_pagamento_plano(text, numeric) to service_role;
