@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 
-import { PLANOS, PLANO_SELO } from '#/lib/planos'
+import { FUNDADORA, PLANOS, PLANO_SELO, planoPorSlug, precoFundadora } from '#/lib/planos'
 import { supabase } from '#/lib/supabase'
 import type { PlanoSlug } from '#/lib/supabase'
 import { fmtBRL } from '#/lib/supabase'
@@ -17,6 +17,10 @@ function ContratarPlano() {
   const [planoAtual, setPlanoAtual] = useState<PlanoSlug | null>(null)
   const [expira, setExpira] = useState<string | null>(null)
   const [carregando, setCarregando] = useState(true)
+  // leva fundadora (promo de lançamento)
+  const [fundadora, setFundadora] = useState(false)
+  const [vagas, setVagas] = useState<number | null>(null)
+  const [mesesFund, setMesesFund] = useState(0)
   // checkout
   const [escolhido, setEscolhido] = useState<PlanoSlug | null>(null)
   const [nome, setNome] = useState('')
@@ -32,7 +36,7 @@ function ContratarPlano() {
     async function carregar() {
       const { data: p } = await supabase
         .from('profiles')
-        .select('id, plano, plano_expira')
+        .select('id, plano, plano_expira, fundadora')
         .eq('user_id', user!.id)
         .maybeSingle()
       if (cancel) return
@@ -40,6 +44,20 @@ function ContratarPlano() {
         setPerfilId(p.id)
         setPlanoAtual(p.plano)
         setExpira(p.plano_expira)
+        setFundadora(p.fundadora ?? false)
+        // vagas restantes + meses de fundadora já usados (cobranças confirmadas)
+        const [{ data: restantes }, { count }] = await Promise.all([
+          supabase.rpc('fundadoras_restantes'),
+          supabase
+            .from('plan_charges')
+            .select('id', { count: 'exact', head: true })
+            .eq('profile_id', p.id)
+            .eq('fundadora', true)
+            .eq('status', 'confirmed'),
+        ])
+        if (cancel) return
+        setVagas(typeof restantes === 'number' ? restantes : null)
+        setMesesFund(count ?? 0)
       }
       setCarregando(false)
     }
@@ -108,6 +126,11 @@ function ContratarPlano() {
     setTimeout(() => setCopiado(false), 2000)
   }
 
+  // Esta modelo ainda pode pegar desconto de fundadora? (já é fundadora, ou há
+  // vaga aberta) E ainda não usou as 3 mensalidades com desconto.
+  const podeFundadora = mesesFund < FUNDADORA.meses && (fundadora || (vagas ?? 0) > 0)
+  const elegivel = (slug: PlanoSlug) => podeFundadora && FUNDADORA.planos.includes(slug)
+
   return (
     <div>
       <h1 className="font-display text-3xl">Plano de vitrine</h1>
@@ -157,6 +180,13 @@ function ContratarPlano() {
           <p className="text-center font-display text-lg text-ink">
             Pagar plano {escolhido.toUpperCase()} via Pix
           </p>
+          {elegivel(escolhido) && planoPorSlug(escolhido) && (
+            <p className="mt-1 text-center text-sm text-gold-300">
+              Desconto de fundadora (−70%):{' '}
+              <span className="text-muted line-through">{fmtBRL(planoPorSlug(escolhido)!.precoMes)}</span>{' '}
+              <b>{fmtBRL(precoFundadora(planoPorSlug(escolhido)!.precoMes))}</b>
+            </p>
+          )}
           <p className="mt-1 mb-4 text-center text-xs text-muted">
             Precisamos do seu nome e CPF para emitir a cobrança.
           </p>
@@ -193,6 +223,21 @@ function ContratarPlano() {
         </div>
       ) : (
         /* GRADE DE PLANOS */
+        <>
+        {podeFundadora && (
+          <div className="mt-6 rounded-2xl border border-gold-500/40 bg-gold-500/5 p-4 text-sm">
+            <b className="text-gold-300">Leva fundadora</b> — 70% de desconto nos 3 primeiros meses do
+            Diamante, Ouro ou Prata.
+            {!fundadora && vagas != null && (
+              <span className="text-muted"> Restam {vagas} de {FUNDADORA.vagas} vagas.</span>
+            )}
+            {fundadora && (
+              <span className="text-muted">
+                {' '}Faltam {FUNDADORA.meses - mesesFund} de {FUNDADORA.meses} mensalidades com desconto.
+              </span>
+            )}
+          </div>
+        )}
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {PLANOS.map((p) => {
             return (
@@ -213,9 +258,19 @@ function ContratarPlano() {
                 <p className="mt-3 text-xs text-muted">{p.resumo}</p>
                 <div className="mt-3">
                   <div className="font-display text-2xl text-gold-300">
-                    {fmtBRL(p.precoMes)}
+                    {elegivel(p.slug) && (
+                      <span className="mr-2 align-middle text-base text-muted line-through">
+                        {fmtBRL(p.precoMes)}
+                      </span>
+                    )}
+                    {fmtBRL(elegivel(p.slug) ? precoFundadora(p.precoMes) : p.precoMes)}
                     <span className="text-xs font-normal text-muted"> / mês</span>
                   </div>
+                  {elegivel(p.slug) && (
+                    <span className="mt-1 inline-block rounded-full bg-gold-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-gold-300">
+                      Fundadora −70%
+                    </span>
+                  )}
                 </div>
                 <div className="mt-2 text-xs">
                   {p.vendeConteudo ? (
@@ -247,6 +302,7 @@ function ContratarPlano() {
             )
           })}
         </div>
+        </>
       )}
     </div>
   )

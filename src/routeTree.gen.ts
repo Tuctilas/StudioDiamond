@@ -23,6 +23,7 @@ import { Route as AcompanhantesSlugRouteImport } from './routes/acompanhantes.$s
 import { Route as AuthenticatedPainelIndexRouteImport } from './routes/_authenticated.painel.index'
 import { Route as AuthenticatedPainelVipRouteImport } from './routes/_authenticated.painel.vip'
 import { Route as AuthenticatedPainelSaquesRouteImport } from './routes/_authenticated.painel.saques'
+import { Route as AuthenticatedPainelPresentesRouteImport } from './routes/_authenticated.painel.presentes'
 import { Route as AuthenticatedPainelPlanoRouteImport } from './routes/_authenticated.painel.plano'
 import { Route as AuthenticatedPainelPerfilRouteImport } from './routes/_authenticated.painel.perfil'
 import { Route as AuthenticatedPainelFotosRouteImport } from './routes/_authenticated.painel.fotos'
@@ -103,6 +104,12 @@ const AuthenticatedPainelSaquesRoute =
     path: '/painel/saques',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedPainelPresentesRoute =
+  AuthenticatedPainelPresentesRouteImport.update({
+    id: '/painel/presentes',
+    path: '/painel/presentes',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedPainelPlanoRoute =
   AuthenticatedPainelPlanoRouteImport.update({
     id: '/painel/plano',
@@ -171,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/painel/fotos': typeof AuthenticatedPainelFotosRoute
   '/painel/perfil': typeof AuthenticatedPainelPerfilRoute
   '/painel/plano': typeof AuthenticatedPainelPlanoRoute
+  '/painel/presentes': typeof AuthenticatedPainelPresentesRoute
   '/painel/saques': typeof AuthenticatedPainelSaquesRoute
   '/painel/vip': typeof AuthenticatedPainelVipRoute
   '/painel/': typeof AuthenticatedPainelIndexRoute
@@ -193,6 +201,7 @@ export interface FileRoutesByTo {
   '/painel/fotos': typeof AuthenticatedPainelFotosRoute
   '/painel/perfil': typeof AuthenticatedPainelPerfilRoute
   '/painel/plano': typeof AuthenticatedPainelPlanoRoute
+  '/painel/presentes': typeof AuthenticatedPainelPresentesRoute
   '/painel/saques': typeof AuthenticatedPainelSaquesRoute
   '/painel/vip': typeof AuthenticatedPainelVipRoute
   '/painel': typeof AuthenticatedPainelIndexRoute
@@ -218,6 +227,7 @@ export interface FileRoutesById {
   '/_authenticated/painel/fotos': typeof AuthenticatedPainelFotosRoute
   '/_authenticated/painel/perfil': typeof AuthenticatedPainelPerfilRoute
   '/_authenticated/painel/plano': typeof AuthenticatedPainelPlanoRoute
+  '/_authenticated/painel/presentes': typeof AuthenticatedPainelPresentesRoute
   '/_authenticated/painel/saques': typeof AuthenticatedPainelSaquesRoute
   '/_authenticated/painel/vip': typeof AuthenticatedPainelVipRoute
   '/_authenticated/painel/': typeof AuthenticatedPainelIndexRoute
@@ -243,6 +253,7 @@ export interface FileRouteTypes {
     | '/painel/fotos'
     | '/painel/perfil'
     | '/painel/plano'
+    | '/painel/presentes'
     | '/painel/saques'
     | '/painel/vip'
     | '/painel/'
@@ -265,6 +276,7 @@ export interface FileRouteTypes {
     | '/painel/fotos'
     | '/painel/perfil'
     | '/painel/plano'
+    | '/painel/presentes'
     | '/painel/saques'
     | '/painel/vip'
     | '/painel'
@@ -289,6 +301,7 @@ export interface FileRouteTypes {
     | '/_authenticated/painel/fotos'
     | '/_authenticated/painel/perfil'
     | '/_authenticated/painel/plano'
+    | '/_authenticated/painel/presentes'
     | '/_authenticated/painel/saques'
     | '/_authenticated/painel/vip'
     | '/_authenticated/painel/'
@@ -406,6 +419,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPainelSaquesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/painel/presentes': {
+      id: '/_authenticated/painel/presentes'
+      path: '/painel/presentes'
+      fullPath: '/painel/presentes'
+      preLoaderRoute: typeof AuthenticatedPainelPresentesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/painel/plano': {
       id: '/_authenticated/painel/plano'
       path: '/painel/plano'
@@ -474,6 +494,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedPainelFotosRoute: typeof AuthenticatedPainelFotosRoute
   AuthenticatedPainelPerfilRoute: typeof AuthenticatedPainelPerfilRoute
   AuthenticatedPainelPlanoRoute: typeof AuthenticatedPainelPlanoRoute
+  AuthenticatedPainelPresentesRoute: typeof AuthenticatedPainelPresentesRoute
   AuthenticatedPainelSaquesRoute: typeof AuthenticatedPainelSaquesRoute
   AuthenticatedPainelVipRoute: typeof AuthenticatedPainelVipRoute
   AuthenticatedPainelIndexRoute: typeof AuthenticatedPainelIndexRoute
@@ -488,6 +509,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedPainelFotosRoute: AuthenticatedPainelFotosRoute,
   AuthenticatedPainelPerfilRoute: AuthenticatedPainelPerfilRoute,
   AuthenticatedPainelPlanoRoute: AuthenticatedPainelPlanoRoute,
+  AuthenticatedPainelPresentesRoute: AuthenticatedPainelPresentesRoute,
   AuthenticatedPainelSaquesRoute: AuthenticatedPainelSaquesRoute,
   AuthenticatedPainelVipRoute: AuthenticatedPainelVipRoute,
   AuthenticatedPainelIndexRoute: AuthenticatedPainelIndexRoute,

@@ -1,7 +1,9 @@
 import { Link, createFileRoute, notFound } from '@tanstack/react-router'
 
 import { ElogiosModelo } from '#/components/ElogiosModelo'
+import { EnviarPresente } from '#/components/EnviarPresente'
 import { GaleriaItem } from '#/components/GaleriaItem'
+import { RankingDoadores } from '#/components/RankingDoadores'
 import { VipArea } from '#/components/VipArea'
 import { cidadePorSlug } from '#/lib/cidades'
 import { PLANO_SELO, planoPorSlug } from '#/lib/planos'
@@ -82,6 +84,7 @@ function Perfil() {
     p.fotos.find((f) => f.tipo !== 'video')
   const whats = waLink(p.whatsapp ?? p.telefone, p.nome_exibicao)
   const plano = planoPorSlug(p.plano)
+  const podeReceberPresente = !!plano && ['ouro', 'diamante', 'ruby'].includes(plano.slug)
 
   const specs: Array<[string, string]> = []
   if (p.idade) specs.push(['Idade', `${p.idade} anos`])
@@ -225,6 +228,14 @@ function Perfil() {
                   ))}
               </div>
             </section>
+          )}
+
+          {/* PRESENTES + RANKING DE DOADORES */}
+          {podeReceberPresente && (
+            <>
+              <EnviarPresente profileId={p.id} nome={p.nome_exibicao} donoUserId={p.user_id} />
+              <RankingDoadores profileId={p.id} />
+            </>
           )}
 
           {/* ÁREA RESTRITA (VIP) — abaixo das fotos */}

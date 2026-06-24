@@ -18,6 +18,12 @@ const ASAAS_API_KEY = Deno.env.get('ASAAS_API_KEY')!
 const ASAAS_BASE_URL = Deno.env.get('ASAAS_BASE_URL') ?? 'https://api-sandbox.asaas.com/v3'
 
 const PRECOS_PLANO: Record<string, number> = { ruby: 490, diamante: 350, ouro: 190, prata: 90 }
+// Leva fundadora — manter em sincronia com src/lib/planos.ts (FUNDADORA) e
+// supabase/plano-fundadora.sql.
+const FUNDADORA_PLANOS = new Set(['diamante', 'ouro', 'prata'])
+const FUNDADORA_DESCONTO = 0.7
+const FUNDADORA_VAGAS = 20
+const FUNDADORA_MESES = 3
 
 /** Valida CPF (11 díg.) ou CNPJ (14 díg.) pelos dígitos verificadores. */
 function docValido(doc: string): boolean {
@@ -61,6 +67,16 @@ function idadeDe(nasc: string): number {
   return anos
 }
 
+/** Remoção best-effort de telefone/@/link no recado (anti-desintermediação). */
+function sanitizarRecado(txt: string): string {
+  return txt
+    .slice(0, 500)
+    .replace(/https?:\/\/\S+/gi, '•••')
+    .replace(/@[a-z0-9._]{2,}/gi, '•••')
+    .replace(/[\d][\d\s().-]{6,}[\d]/g, (m) => (m.replace(/\D/g, '').length >= 8 ? '•••' : m))
+    .trim()
+}
+
 async function asaas(path: string, init: RequestInit = {}) {
   const r = await fetch(`${ASAAS_BASE_URL}${path}`, {
     ...init,
@@ -75,7 +91,7 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
   try {
     const body = await req.json()
-    const tipo = body.tipo === 'plano' ? 'plano' : 'vip'
+    const tipo = body.tipo === 'plano' ? 'plano' : body.tipo === 'presente' ? 'presente' : 'vip'
     const nome = String(body.nome ?? '').trim()
     const doc = String(body.cpfCnpj ?? '').replace(/\D/g, '')
     if (nome.length < 3 || !docValido(doc)) {
@@ -126,12 +142,37 @@ Deno.serve(async (req) => {
       if (!(plano in PRECOS_PLANO)) return json({ error: 'Plano inválido.' }, 400)
       const { data: perfil } = await admin
         .from('profiles')
-        .select('id')
+        .select('id, fundadora')
         .eq('user_id', user.id)
         .maybeSingle()
       if (!perfil) return json({ error: 'Crie seu perfil antes de contratar um plano.' }, 400)
 
-      const valor = PRECOS_PLANO[plano]
+      // Leva fundadora: 70% off nas 3 primeiras mensalidades das 20 primeiras
+      // modelos que PAGAREM um plano (Ruby fora). A vaga só é cravada no webhook,
+      // ao confirmar o pagamento — ver confirmar_pagamento_plano.
+      let valor = PRECOS_PLANO[plano]
+      let fundadoraCharge = false
+      if (FUNDADORA_PLANOS.has(plano)) {
+        const { count: mesesUsados } = await admin
+          .from('plan_charges')
+          .select('id', { count: 'exact', head: true })
+          .eq('profile_id', perfil.id)
+          .eq('fundadora', true)
+          .eq('status', 'confirmed')
+        let temVaga = perfil.fundadora === true
+        if (!temVaga) {
+          const { count: fundCount } = await admin
+            .from('profiles')
+            .select('id', { count: 'exact', head: true })
+            .eq('fundadora', true)
+          temVaga = (fundCount ?? 0) < FUNDADORA_VAGAS
+        }
+        if (temVaga && (mesesUsados ?? 0) < FUNDADORA_MESES) {
+          fundadoraCharge = true
+          valor = Math.round(valor * (1 - FUNDADORA_DESCONTO) * 100) / 100
+        }
+      }
+
       const r = await gerarPix(valor, `Plano ${plano} — Studio Diamond`, `plano:${perfil.id}:${plano}`)
       await admin.from('plan_charges').insert({
         profile_id: perfil.id,
@@ -139,6 +180,57 @@ Deno.serve(async (req) => {
         asaas_payment_id: r.paymentId,
         asaas_customer_id: r.customerId,
         valor,
+        status: 'pending',
+        fundadora: fundadoraCharge,
+      })
+      return json({ paymentId: r.paymentId, invoiceUrl: r.invoiceUrl, pixPayload: r.pixPayload, pixImage: r.pixImage })
+    }
+
+    if (tipo === 'presente') {
+      // Conteúdo adulto: confirma 18+ pela data de nascimento (no servidor).
+      if (idadeDe(String(body.dataNascimento ?? '')) < 18) {
+        return json({ error: 'Conteúdo restrito a maiores de 18 anos.' }, 403)
+      }
+      const profile_id = body.profile_id
+      const giftSlug = String(body.gift ?? '')
+      if (!profile_id || !giftSlug) return json({ error: 'Presente ou perfil ausente.' }, 400)
+
+      const { data: gift } = await admin
+        .from('gifts')
+        .select('id, nome, valor, ativo')
+        .eq('slug', giftSlug)
+        .maybeSingle()
+      if (!gift || !gift.ativo) return json({ error: 'Presente indisponível.' }, 400)
+
+      const { data: perfil } = await admin
+        .from('profiles')
+        .select('id, nome_exibicao, plano')
+        .eq('id', profile_id)
+        .maybeSingle()
+      if (!perfil) return json({ error: 'Modelo não encontrada.' }, 400)
+      if (!perfil.plano || !['ouro', 'diamante', 'ruby'].includes(perfil.plano)) {
+        return json({ error: 'Esta modelo ainda não recebe presentes.' }, 400)
+      }
+
+      const apelido = String(body.apelido ?? '').trim().slice(0, 40)
+      const anonimo = body.anonimo === true
+      const mensagem = sanitizarRecado(String(body.mensagem ?? ''))
+
+      const r = await gerarPix(
+        Number(gift.valor),
+        `Presente ${gift.nome} — ${perfil.nome_exibicao}`,
+        `presente:${perfil.id}:${gift.id}`,
+      )
+      await admin.from('gift_sends').insert({
+        sender_id: user.id,
+        profile_id: perfil.id,
+        gift_id: gift.id,
+        valor: Number(gift.valor),
+        sender_apelido: apelido || null,
+        mensagem: mensagem || null,
+        anonimo,
+        asaas_payment_id: r.paymentId,
+        asaas_customer_id: r.customerId,
         status: 'pending',
       })
       return json({ paymentId: r.paymentId, invoiceUrl: r.invoiceUrl, pixPayload: r.pixPayload, pixImage: r.pixImage })

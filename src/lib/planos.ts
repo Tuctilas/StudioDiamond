@@ -85,6 +85,24 @@ export function planoPorSlug(slug?: string | null): Plano | undefined {
   return PLANOS.find((p) => p.slug === slug)
 }
 
+/**
+ * Leva fundadora (promo de lançamento): as 20 primeiras modelos que PAGAREM
+ * um plano ganham 70% de desconto nas 3 primeiras mensalidades. Ruby fica de
+ * fora. O desconto é cravado no servidor — mantenha em sincronia com a Edge
+ * Function `asaas-criar-cobranca` e com `supabase/plano-fundadora.sql`.
+ */
+export const FUNDADORA = {
+  desconto: 0.7,
+  vagas: 20,
+  meses: 3,
+  planos: ['diamante', 'ouro', 'prata'] as PlanoSlug[],
+}
+
+/** Preço de um plano já com o desconto de fundadora aplicado. */
+export function precoFundadora(precoMes: number): number {
+  return Math.round(precoMes * (1 - FUNDADORA.desconto) * 100) / 100
+}
+
 /** Cor do selo por plano (classes Tailwind). */
 export const PLANO_SELO: Record<PlanoSlug, string> = {
   ruby: 'from-rose-400 to-red-600 text-white',

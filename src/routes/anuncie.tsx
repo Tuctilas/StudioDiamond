@@ -1,7 +1,8 @@
+import { useEffect, useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 
-import { PLANOS, PLANO_SELO } from '#/lib/planos'
-import { fmtBRL } from '#/lib/supabase'
+import { FUNDADORA, PLANOS, PLANO_SELO } from '#/lib/planos'
+import { fmtBRL, supabase } from '#/lib/supabase'
 import { useAuth } from '#/lib/useAuth'
 
 export const Route = createFileRoute('/anuncie')({
@@ -22,6 +23,13 @@ function Anuncie() {
   const { session } = useAuth()
   // Logado vai contratar o plano; deslogado vai cadastrar primeiro.
   const destino = session ? '/painel/plano' : '/auth'
+  // Vagas restantes da leva fundadora (promo de lançamento).
+  const [vagas, setVagas] = useState<number | null>(null)
+  useEffect(() => {
+    supabase.rpc('fundadoras_restantes').then(({ data }) => {
+      if (typeof data === 'number') setVagas(data)
+    })
+  }, [])
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-12">
@@ -33,6 +41,22 @@ function Anuncie() {
           curadoria rápida.
         </p>
       </div>
+
+      {/* LEVA FUNDADORA (promo de lançamento) */}
+      {(vagas == null || vagas > 0) && (
+        <div className="mx-auto mt-8 max-w-2xl rounded-2xl border border-gold-500/50 bg-gold-500/10 p-5 text-center">
+          <p className="font-display text-lg text-gold-200">Leva fundadora · 70% de desconto</p>
+          <p className="mt-1 text-sm text-muted">
+            As {FUNDADORA.vagas} primeiras anunciantes pagam{' '}
+            <b className="text-gold-300">70% menos</b> nos 3 primeiros meses do Diamante, Ouro ou Prata.
+            {vagas != null && (
+              <>
+                {' '}Restam <b className="text-gold-300">{vagas}</b> vagas.
+              </>
+            )}
+          </p>
+        </div>
+      )}
 
       {/* PLANOS */}
       <div className="mt-12 grid gap-6 lg:grid-cols-4">

@@ -43,9 +43,11 @@ Deno.serve(async (req) => {
       // no-op se o pagamento não estiver na tabela dela (idempotente).
       await admin.rpc('confirmar_pagamento_vip', { p_payment_id: paymentId, p_valor_pago: valorPago })
       await admin.rpc('confirmar_pagamento_plano', { p_payment_id: paymentId, p_valor_pago: valorPago })
+      await admin.rpc('confirmar_presente', { p_payment_id: paymentId, p_valor_pago: valorPago })
     } else if (tipo === 'PAYMENT_REFUNDED' || tipo === 'PAYMENT_CHARGEBACK_REQUESTED') {
       await admin.from('vip_charges').update({ status: 'refunded' }).eq('asaas_payment_id', paymentId)
       await admin.from('plan_charges').update({ status: 'refunded' }).eq('asaas_payment_id', paymentId)
+      await admin.from('gift_sends').update({ status: 'refunded' }).eq('asaas_payment_id', paymentId)
     }
   }
 
