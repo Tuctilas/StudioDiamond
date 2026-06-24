@@ -137,8 +137,8 @@ function EditarPerfil() {
           preco_hora: txt(data.preco_hora),
           preco_2h: txt(data.preco_2h),
           preco_pernoite: data.preco_pernoite ?? '',
-          documento_url: data.documento_url ?? '',
-          video_verificacao_url: data.video_verificacao_url ?? '',
+          documento_url: '',
+          video_verificacao_url: '',
           rede_instagram: data.rede_instagram ?? '',
           rede_twitter: data.rede_twitter ?? '',
           rede_tiktok: data.rede_tiktok ?? '',
@@ -154,6 +154,20 @@ function EditarPerfil() {
         setMinhasCaracs(
           new Set((data.profile_caracteristicas ?? []).map((pc: any) => pc.caracteristica_id)),
         )
+        // Documentos de verificação ficam em profile_private (fora da leitura pública).
+        supabase
+          .from('profile_private')
+          .select('documento_url, video_verificacao_url')
+          .eq('profile_id', data.id)
+          .maybeSingle()
+          .then(({ data: priv }) => {
+            if (priv)
+              setForm((f) => ({
+                ...f,
+                documento_url: priv.documento_url ?? '',
+                video_verificacao_url: priv.video_verificacao_url ?? '',
+              }))
+          })
       })
   }, [user])
 
@@ -250,8 +264,6 @@ function EditarPerfil() {
       preco_hora: num(form.preco_hora),
       preco_2h: num(form.preco_2h),
       preco_pernoite: t(form.preco_pernoite),
-      documento_url: form.documento_url || null,
-      video_verificacao_url: form.video_verificacao_url || null,
       rede_instagram: t(form.rede_instagram),
       rede_twitter: t(form.rede_twitter),
       rede_tiktok: t(form.rede_tiktok),
@@ -264,6 +276,15 @@ function EditarPerfil() {
         : await supabase.from('profiles').insert(payload).select().single()
       if (error) throw error
       setPerfilId(data.id)
+      // Documentos de verificação vão para profile_private (fora da leitura pública).
+      await supabase.from('profile_private').upsert(
+        {
+          profile_id: data.id,
+          documento_url: form.documento_url || null,
+          video_verificacao_url: form.video_verificacao_url || null,
+        },
+        { onConflict: 'profile_id' },
+      )
       setTermosEm(data.termos_aceitos_em ?? termos_aceitos_em)
       setForm((f) => ({ ...f, slug: data.slug }))
       // regrava os conjuntos N:N

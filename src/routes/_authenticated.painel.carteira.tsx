@@ -46,14 +46,19 @@ function Carteira() {
     async function carregar() {
       const { data: p } = await supabase
         .from('profiles')
-        .select('id, pix_tipo, pix_chave')
+        .select('id')
         .eq('user_id', user!.id)
         .maybeSingle()
       if (p) {
         setPerfilId(p.id)
-        if (p.pix_tipo) setPixTipo(p.pix_tipo as PixTipo)
-        if (p.pix_chave) {
-          setPixChave(p.pix_chave)
+        const { data: priv } = await supabase
+          .from('profile_private')
+          .select('pix_tipo, pix_chave')
+          .eq('profile_id', p.id)
+          .maybeSingle()
+        if (priv?.pix_tipo) setPixTipo(priv.pix_tipo as PixTipo)
+        if (priv?.pix_chave) {
+          setPixChave(priv.pix_chave)
           setPixSalvo(true)
         }
         await recarregar(p.id)
@@ -94,9 +99,8 @@ function Carteira() {
     }
     setPixBusy(true)
     const { error } = await supabase
-      .from('profiles')
-      .update({ pix_tipo: pixTipo, pix_chave: chave })
-      .eq('id', perfilId!)
+      .from('profile_private')
+      .upsert({ profile_id: perfilId!, pix_tipo: pixTipo, pix_chave: chave }, { onConflict: 'profile_id' })
     setPixBusy(false)
     if (error) {
       setPixMsg(error.message)

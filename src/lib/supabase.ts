@@ -45,13 +45,9 @@ export interface Profile {
   plano_rank: number
   plano_expira: string | null
   termos_aceitos_em: string | null
-  documento_url: string | null
-  video_verificacao_url: string | null
   verificado: boolean
   vip_ativo: boolean
   vip_preco: number | null
-  pix_tipo: PixTipo | null
-  pix_chave: string | null
   capa_video_url: string | null
   rede_instagram: string | null
   rede_twitter: string | null
@@ -61,6 +57,16 @@ export interface Profile {
 }
 
 export type PixTipo = 'cpf' | 'cnpj' | 'email' | 'telefone' | 'aleatoria'
+
+/** Dados sensíveis do perfil — fora de `profiles` (que é lida publicamente).
+ *  Tabela `profile_private`, RLS só do dono + admin. Ver supabase/profile-privado.sql. */
+export interface ProfilePrivate {
+  profile_id: string
+  pix_tipo: PixTipo | null
+  pix_chave: string | null
+  documento_url: string | null
+  video_verificacao_url: string | null
+}
 
 /** Rótulos legíveis dos tipos de chave Pix. */
 export const PIX_TIPOS: Array<{ valor: PixTipo; rotulo: string }> = [

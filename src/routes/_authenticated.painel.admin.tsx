@@ -11,10 +11,15 @@ export const Route = createFileRoute('/_authenticated/painel/admin')({
   component: Moderacao,
 })
 
+type PerfilModeracao = Profile & {
+  documento_url?: string | null
+  video_verificacao_url?: string | null
+}
+
 function Moderacao() {
   const { loading, isAdmin } = useAuth()
   const [aba, setAba] = useState<'pending' | 'active' | 'paused'>('pending')
-  const [lista, setLista] = useState<Profile[]>([])
+  const [lista, setLista] = useState<PerfilModeracao[]>([])
 
   useEffect(() => {
     if (!isAdmin) return
@@ -25,7 +30,23 @@ function Moderacao() {
         .select('*')
         .eq('status', aba)
         .order('created_at', { ascending: false })
-      setLista(data ?? [])
+      const perfis = data ?? []
+      // Documentos de verificação ficam em profile_private (admin lê via RLS).
+      const ids = perfis.map((p) => p.id)
+      const docs: Record<string, { documento_url: string | null; video_verificacao_url: string | null }> = {}
+      if (ids.length) {
+        const { data: privs } = await supabase
+          .from('profile_private')
+          .select('profile_id, documento_url, video_verificacao_url')
+          .in('profile_id', ids)
+        for (const pv of privs ?? []) {
+          docs[pv.profile_id] = {
+            documento_url: pv.documento_url,
+            video_verificacao_url: pv.video_verificacao_url,
+          }
+        }
+      }
+      setLista(perfis.map((p) => ({ ...p, ...docs[p.id] })))
     }
   }, [isAdmin, aba])
 
@@ -49,7 +70,7 @@ function Moderacao() {
     setLista((l) => l.map((x) => (x.id === p.id ? { ...x, verificado: !x.verificado } : x)))
   }
   // Abre um arquivo do bucket privado via URL assinada (válida 2 min).
-  async function abrirArquivo(path: string | null) {
+  async function abrirArquivo(path: string | null | undefined) {
     if (!path) return
     const { data } = await supabase.storage.from('verificacao').createSignedUrl(path, 120)
     if (data?.signedUrl) window.open(data.signedUrl, '_blank', 'noopener')

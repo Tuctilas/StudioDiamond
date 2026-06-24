@@ -70,11 +70,16 @@ Deno.serve(async (req) => {
     }
     const saque = claimed
 
-    // chave Pix da modelo
+    // nome (profiles) + chave Pix (profile_private) da modelo
     const { data: perfil } = await admin
       .from('profiles')
-      .select('pix_tipo, pix_chave, nome_exibicao')
+      .select('nome_exibicao')
       .eq('id', saque.profile_id)
+      .maybeSingle()
+    const { data: priv } = await admin
+      .from('profile_private')
+      .select('pix_tipo, pix_chave')
+      .eq('profile_id', saque.profile_id)
       .maybeSingle()
     // Libera a reserva (volta a 'pendente') quando falhamos ANTES de o
     // Pix sair — assim o admin pode tentar de novo. Depois da transferência
@@ -82,11 +87,11 @@ Deno.serve(async (req) => {
     const liberar = () =>
       admin.from('wallet_entries').update({ status: 'pendente' }).eq('id', saque.id)
 
-    if (!perfil?.pix_chave || !perfil?.pix_tipo) {
+    if (!priv?.pix_chave || !priv?.pix_tipo) {
       await liberar()
       return json({ error: 'A modelo não cadastrou a chave Pix.' }, 400)
     }
-    const tipoAsaas = TIPO_ASAAS[perfil.pix_tipo]
+    const tipoAsaas = TIPO_ASAAS[priv.pix_tipo]
     if (!tipoAsaas) {
       await liberar()
       return json({ error: 'Tipo de chave Pix inválido.' }, 400)
@@ -104,7 +109,7 @@ Deno.serve(async (req) => {
         body: JSON.stringify({
           value: Number(saque.valor),
           operationType: 'PIX',
-          pixAddressKey: perfil.pix_chave,
+          pixAddressKey: priv.pix_chave,
           pixAddressKeyType: tipoAsaas,
           description: `Saque — ${perfil.nome_exibicao}`,
           externalReference: saque.id,

@@ -190,18 +190,30 @@ function Perfil() {
           )}
           {p.bio && <p className="mt-4 max-w-xl whitespace-pre-line text-sm leading-relaxed text-muted">{p.bio}</p>}
 
-          {whats && (
-            <a
-              href={whats}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#25D366] to-[#128C7E] px-7 py-4 font-semibold text-white transition hover:brightness-110"
-            >
-              <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
-                <path d="M19.05 4.91A9.82 9.82 0 0 0 12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.91-7.02zM12.04 20.15h-.01a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.18 8.18 0 0 1-1.26-4.38c0-4.54 3.7-8.23 8.24-8.23a8.2 8.2 0 0 1 8.23 8.24c0 4.54-3.69 8.23-8.23 8.23z" />
-              </svg>
-              Falar no WhatsApp
-            </a>
+          {(whats || podeReceberPresente) && (
+            <div className="mt-6 flex flex-wrap gap-3">
+              {whats && (
+                <a
+                  href={whats}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#25D366] to-[#128C7E] px-7 py-4 font-semibold text-white transition hover:brightness-110"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+                    <path d="M19.05 4.91A9.82 9.82 0 0 0 12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.91-7.02zM12.04 20.15h-.01a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.18 8.18 0 0 1-1.26-4.38c0-4.54 3.7-8.23 8.24-8.23a8.2 8.2 0 0 1 8.23 8.24c0 4.54-3.69 8.23-8.23 8.23z" />
+                  </svg>
+                  Falar no WhatsApp
+                </a>
+              )}
+              {podeReceberPresente && (
+                <a
+                  href="#enviar-presente"
+                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-gold-500 to-gold-700 px-7 py-4 font-semibold text-white transition hover:brightness-110"
+                >
+                  🎁 Enviar presente
+                </a>
+              )}
+            </div>
           )}
 
           {/* CARACTERÍSTICAS — cada uma num bloco que se ajusta (sem fundo vazio) */}
@@ -233,7 +245,9 @@ function Perfil() {
           {/* PRESENTES + RANKING DE DOADORES */}
           {podeReceberPresente && (
             <>
-              <EnviarPresente profileId={p.id} nome={p.nome_exibicao} donoUserId={p.user_id} />
+              <div id="enviar-presente" className="scroll-mt-6">
+                <EnviarPresente profileId={p.id} nome={p.nome_exibicao} donoUserId={p.user_id} />
+              </div>
               <RankingDoadores profileId={p.id} />
             </>
           )}
