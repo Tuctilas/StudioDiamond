@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 
+import { EnquadrarFoto, type Foco } from '#/components/EnquadrarFoto'
 import { planoPorSlug } from '#/lib/planos'
 import { supabase } from '#/lib/supabase'
 import type { PlanoSlug, VipComment, VipMedia } from '#/lib/supabase'
@@ -23,6 +24,7 @@ interface Pendente {
   file: File
   preview: string
   tipo: 'image' | 'video'
+  foco: Foco
 }
 
 function PainelVip() {
@@ -36,6 +38,7 @@ function PainelVip() {
   const [msg, setMsg] = useState('')
   const [carregando, setCarregando] = useState(true)
   const [pendentes, setPendentes] = useState<Pendente[]>([])
+  const [editando, setEditando] = useState<number | null>(null)
 
   useEffect(() => {
     if (!user) return
@@ -137,6 +140,7 @@ function PainelVip() {
         file,
         preview: URL.createObjectURL(file),
         tipo: (file.type.startsWith('video') ? 'video' : 'image') as 'image' | 'video',
+        foco: { x: 50, y: 50 } as Foco,
       })),
     ])
   }
@@ -153,20 +157,29 @@ function PainelVip() {
     setPendentes([])
   }
 
+  function salvarFoco(foco: Foco) {
+    if (editando == null) return
+    const idx = editando
+    setPendentes((prev) => prev.map((p, i) => (i === idx ? { ...p, foco } : p)))
+    setEditando(null)
+  }
+
   // Só aqui o conteúdo vai de fato para a área restrita.
   async function publicar() {
     if (!pendentes.length || !user || !perfil) return
     setBusy(true)
     setMsg('Publicando…')
     let ordem = midias.length
-    for (const { file, tipo } of pendentes) {
+    for (const { file, tipo, foco } of pendentes) {
       const path = `${user.id}/vip-${Date.now()}-${file.name.replace(/[^a-z0-9.\-_]/gi, '_')}`
       const { error } = await supabase.storage.from('vip-conteudo').upload(path, file)
       if (error) {
         setMsg(`Erro: ${error.message}`)
         continue
       }
-      await supabase.from('vip_media').insert({ profile_id: perfil.id, path, tipo, ordem: ordem++ })
+      await supabase
+        .from('vip_media')
+        .insert({ profile_id: perfil.id, path, tipo, ordem: ordem++, foco_x: foco.x, foco_y: foco.y })
     }
     limparPendentes()
     await recarregar(perfil.id)
@@ -283,15 +296,31 @@ function PainelVip() {
             {pendentes.map((p, i) => (
               <div key={i} className="relative overflow-hidden rounded-xl border border-gold-500/40">
                 {p.tipo === 'video' ? (
-                  <video src={p.preview} muted className="aspect-[3/4] w-full object-cover" />
+                  <video
+                    src={p.preview}
+                    muted
+                    style={{ objectPosition: `${p.foco.x}% ${p.foco.y}%` }}
+                    className="aspect-[3/4] w-full object-cover"
+                  />
                 ) : (
-                  <img src={p.preview} alt="" className="aspect-[3/4] w-full object-cover" />
+                  <img
+                    src={p.preview}
+                    alt=""
+                    style={{ objectPosition: `${p.foco.x}% ${p.foco.y}%` }}
+                    className="aspect-[3/4] w-full object-cover"
+                  />
                 )}
                 <button
                   onClick={() => removerPendente(i)}
                   className="absolute right-1 top-1 rounded-full bg-noir-950/85 px-2 py-0.5 text-xs text-red-400 hover:text-red-300"
                 >
                   ✕
+                </button>
+                <button
+                  onClick={() => setEditando(i)}
+                  className="absolute inset-x-1 bottom-1 rounded-md bg-noir-950/85 py-1 text-[11px] font-semibold text-gold-300 hover:text-gold-200"
+                >
+                  ✥ Enquadrar
                 </button>
               </div>
             ))}
@@ -348,6 +377,21 @@ function PainelVip() {
         ))}
         {!comentarios.length && <p className="text-sm text-muted">Sem comentários ainda.</p>}
       </div>
+
+      {editando != null &&
+        pendentes[editando] &&
+        (() => {
+          const p = pendentes[editando]
+          return (
+            <EnquadrarFoto
+              src={p.preview}
+              tipo={p.tipo}
+              foco={p.foco}
+              onSalvar={salvarFoco}
+              onFechar={() => setEditando(null)}
+            />
+          )
+        })()}
     </div>
   )
 }

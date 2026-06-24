@@ -30,6 +30,7 @@ export function ProfileCard({ p }: { p: ProfileComCapa }) {
             src={p.capa_url}
             alt={p.nome_exibicao}
             loading="lazy"
+            style={{ objectPosition: `${p.capa_foco_x}% ${p.capa_foco_y}%` }}
             className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
           />
         ) : (

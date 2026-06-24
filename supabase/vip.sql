@@ -149,7 +149,10 @@ begin
   insert into public.wallet_entries (profile_id, tipo, valor, descricao, status)
     values (p_profile_id, 'credito', v_liquido, 'Assinatura VIP (líquido após taxa)', 'confirmado');
 end $$;
-grant execute on function public.assinar_vip(uuid) to authenticated;
+-- ⚠️ SEGURANÇA (24/06/2026): assinar_vip liberava VIP de graça. Obsoleta — o
+-- webhook (confirmar_pagamento_vip) cria a assinatura após o pagamento real.
+-- Removida em vez de concedida. Ver supabase/seguranca-rpc.sql.
+drop function if exists public.assinar_vip(uuid);
 
 -- 7) Solicitação de saque (a modelo pede; o admin paga)
 create or replace function public.solicitar_saque(p_profile_id uuid, p_valor numeric)

@@ -7,10 +7,12 @@
 --  Idempotente.
 -- ============================================================
 
+-- ⚠️ SEGURANÇA (24/06/2026): documento_url e video_verificacao_url SAÍRAM de
+-- profiles (vazavam os caminhos dos documentos na leitura pública). Foram pra
+-- `profile_private` (RLS dono+admin) — ver supabase/profile-privado.sql.
+-- termos_aceitos_em e verificado NÃO são sensíveis e continuam em profiles.
 alter table public.profiles
   add column if not exists termos_aceitos_em timestamptz,
-  add column if not exists documento_url text,            -- caminho no bucket privado
-  add column if not exists video_verificacao_url text,    -- caminho no bucket privado
   add column if not exists verificado boolean not null default false;
 
 -- Proteção: status/destaque/plano/verificado só o admin altera.

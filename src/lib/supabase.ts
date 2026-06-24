@@ -84,6 +84,8 @@ export interface VipMedia {
   tipo: 'image' | 'video'
   ordem: number
   tamanho: 'pequeno' | 'grande'
+  foco_x: number
+  foco_y: number
   created_at: string
 }
 
@@ -119,6 +121,8 @@ export interface ProfilePhoto {
   is_capa: boolean
   tipo: 'image' | 'video'
   tamanho: 'pequeno' | 'grande'
+  foco_x: number
+  foco_y: number
 }
 
 export interface Cidade {

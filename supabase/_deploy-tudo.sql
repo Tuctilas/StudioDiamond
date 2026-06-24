@@ -15,10 +15,9 @@
 -- ─────────────────────────────────────────────
 -- 1) CHAVE PIX (recebimento de saques)
 -- ─────────────────────────────────────────────
-alter table public.profiles
-  add column if not exists pix_tipo text
-    check (pix_tipo is null or pix_tipo in ('cpf','cnpj','email','telefone','aleatoria')),
-  add column if not exists pix_chave text;
+-- ⚠️ SEGURANÇA (24/06/2026): pix_tipo/pix_chave saíram de profiles (vazavam na
+-- leitura pública). Agora em `profile_private`. Bloco neutralizado de propósito.
+-- Ver supabase/profile-privado.sql.
 
 
 -- ─────────────────────────────────────────────
@@ -50,7 +49,10 @@ begin
   insert into public.wallet_entries (profile_id, tipo, valor, descricao, status)
     values (p_profile_id, 'credito', v_liquido, 'Assinatura VIP (líquido após taxa)', 'confirmado');
 end $$;
-grant execute on function public.assinar_vip(uuid) to authenticated;
+-- ⚠️ SEGURANÇA (24/06/2026): assinar_vip liberava VIP de graça. Obsoleta — o
+-- webhook (confirmar_pagamento_vip) é quem cria a assinatura após o pagamento.
+-- Em vez de conceder execute, removemos a função. Ver supabase/seguranca-rpc.sql.
+drop function if exists public.assinar_vip(uuid);
 
 
 -- ─────────────────────────────────────────────

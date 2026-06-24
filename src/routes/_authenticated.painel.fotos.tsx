@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 
+import { EnquadrarFoto, type Foco } from '#/components/EnquadrarFoto'
 import { supabase } from '#/lib/supabase'
 import type { ProfilePhoto } from '#/lib/supabase'
 import { useAuth } from '#/lib/useAuth'
@@ -15,6 +16,7 @@ interface Pendente {
   file: File
   preview: string
   tipo: 'image' | 'video'
+  foco: Foco
 }
 
 function Fotos() {
@@ -27,6 +29,9 @@ function Fotos() {
   const [carregando, setCarregando] = useState(true)
   const [videoCapa, setVideoCapa] = useState<string | null>(null)
   const [videoPendente, setVideoPendente] = useState<{ file: File; preview: string } | null>(null)
+  const [editando, setEditando] = useState<
+    { tipo: 'pendente'; index: number } | { tipo: 'publicada'; id: string } | null
+  >(null)
 
   useEffect(() => {
     if (!user) return
@@ -71,6 +76,7 @@ function Fotos() {
         file,
         preview: URL.createObjectURL(file),
         tipo: (file.type.startsWith('video') ? 'video' : 'image') as 'image' | 'video',
+        foco: { x: 50, y: 50 } as Foco,
       })),
     ])
   }
@@ -95,7 +101,7 @@ function Fotos() {
     let ordem = fotos.length
     // capa é sempre uma imagem; vídeo nunca vira capa do card
     let semCapa = !fotos.some((f) => f.tipo !== 'video')
-    for (const { file, tipo } of pendentes) {
+    for (const { file, tipo, foco } of pendentes) {
       const path = `${user.id}/${Date.now()}-${file.name.replace(/[^a-z0-9.\-_]/gi, '_')}`
       const { error } = await supabase.storage.from('profile-photos').upload(path, file)
       if (error) {
@@ -110,6 +116,8 @@ function Fotos() {
         ordem: ordem++,
         is_capa: ehCapa,
         tipo,
+        foco_x: foco.x,
+        foco_y: foco.y,
       })
       if (ehCapa) semCapa = false
     }
@@ -142,6 +150,20 @@ function Fotos() {
     const novo = f.tamanho === 'grande' ? 'pequeno' : 'grande'
     await supabase.from('profile_photos').update({ tamanho: novo }).eq('id', f.id)
     setFotos((l) => l.map((x) => (x.id === f.id ? { ...x, tamanho: novo } : x)))
+  }
+
+  // Salva o enquadramento escolhido (pendente fica no estado; publicada vai ao banco).
+  async function salvarFoco(foco: Foco) {
+    if (!editando) return
+    if (editando.tipo === 'pendente') {
+      const idx = editando.index
+      setPendentes((prev) => prev.map((p, i) => (i === idx ? { ...p, foco } : p)))
+    } else {
+      const id = editando.id
+      await supabase.from('profile_photos').update({ foco_x: foco.x, foco_y: foco.y }).eq('id', id)
+      setFotos((l) => l.map((x) => (x.id === id ? { ...x, foco_x: foco.x, foco_y: foco.y } : x)))
+    }
+    setEditando(null)
   }
 
   // Vídeo de capa: selecionar só prepara; publicar é que envia.
@@ -311,15 +333,31 @@ function Fotos() {
             {pendentes.map((p, i) => (
               <div key={i} className="relative overflow-hidden rounded-xl border border-gold-500/40">
                 {p.tipo === 'video' ? (
-                  <video src={p.preview} muted className="aspect-[3/4] w-full object-cover" />
+                  <video
+                    src={p.preview}
+                    muted
+                    style={{ objectPosition: `${p.foco.x}% ${p.foco.y}%` }}
+                    className="aspect-[3/4] w-full object-cover"
+                  />
                 ) : (
-                  <img src={p.preview} alt="" className="aspect-[3/4] w-full object-cover" />
+                  <img
+                    src={p.preview}
+                    alt=""
+                    style={{ objectPosition: `${p.foco.x}% ${p.foco.y}%` }}
+                    className="aspect-[3/4] w-full object-cover"
+                  />
                 )}
                 <button
                   onClick={() => removerPendente(i)}
                   className="absolute right-1 top-1 rounded-full bg-noir-950/85 px-2 py-0.5 text-xs text-red-400 hover:text-red-300"
                 >
                   ✕
+                </button>
+                <button
+                  onClick={() => setEditando({ tipo: 'pendente', index: i })}
+                  className="absolute inset-x-1 bottom-1 rounded-md bg-noir-950/85 py-1 text-[11px] font-semibold text-gold-300 hover:text-gold-200"
+                >
+                  ✥ Enquadrar
                 </button>
               </div>
             ))}
@@ -338,16 +376,27 @@ function Fotos() {
             }`}
           >
             {f.tipo === 'video' ? (
-              <video src={f.url} controls muted className="aspect-[3/4] w-full object-cover" />
+              <video
+                src={f.url}
+                controls
+                muted
+                style={{ objectPosition: `${f.foco_x}% ${f.foco_y}%` }}
+                className="aspect-[3/4] w-full object-cover"
+              />
             ) : (
-              <img src={f.url} alt="" className="aspect-[3/4] w-full object-cover" />
+              <img
+                src={f.url}
+                alt=""
+                style={{ objectPosition: `${f.foco_x}% ${f.foco_y}%` }}
+                className="aspect-[3/4] w-full object-cover"
+              />
             )}
             {f.is_capa && (
               <span className="absolute left-2 top-2 rounded-full bg-gold-500 px-2 py-0.5 text-[10px] font-bold uppercase text-noir-950">
                 Capa
               </span>
             )}
-            <div className="absolute inset-x-0 bottom-0 flex justify-between gap-1 bg-noir-950/85 p-2 text-xs">
+            <div className="absolute inset-x-0 bottom-0 flex flex-wrap justify-between gap-x-2 gap-y-1 bg-noir-950/85 p-2 text-xs">
               {!f.is_capa && f.tipo !== 'video' ? (
                 <button onClick={() => definirCapa(f)} className="text-gold-400 hover:underline">
                   ★ capa
@@ -355,6 +404,9 @@ function Fotos() {
               ) : (
                 <span />
               )}
+              <button onClick={() => setEditando({ tipo: 'publicada', id: f.id })} className="text-gold-400 hover:underline">
+                ✥ enquadrar
+              </button>
               <button onClick={() => alternarTamanho(f)} className="text-gold-400 hover:underline">
                 {f.tamanho === 'grande' ? '⊟ menor' : '⊞ maior'}
               </button>
@@ -368,6 +420,34 @@ function Fotos() {
       {!fotos.length && !pendentes.length && (
         <p className="mt-6 text-sm text-muted">Nenhuma foto ainda — selecione a primeira!</p>
       )}
+
+      {editando &&
+        (() => {
+          if (editando.tipo === 'pendente') {
+            const p = pendentes[editando.index]
+            if (!p) return null
+            return (
+              <EnquadrarFoto
+                src={p.preview}
+                tipo={p.tipo}
+                foco={p.foco}
+                onSalvar={salvarFoco}
+                onFechar={() => setEditando(null)}
+              />
+            )
+          }
+          const f = fotos.find((x) => x.id === editando.id)
+          if (!f) return null
+          return (
+            <EnquadrarFoto
+              src={f.url}
+              tipo={f.tipo}
+              foco={{ x: f.foco_x, y: f.foco_y }}
+              onSalvar={salvarFoco}
+              onFechar={() => setEditando(null)}
+            />
+          )
+        })()}
     </div>
   )
 }

@@ -11,13 +11,17 @@ export function GaleriaItem({
   src,
   tipo,
   grande = false,
+  foco,
 }: {
   src: string
   tipo: 'image' | 'video'
   grande?: boolean
+  foco?: { x: number; y: number }
 }) {
   const semMenu = (e: React.MouseEvent) => e.preventDefault()
   const classe = 'h-64 w-full rounded-xl border border-line object-cover sm:h-72 md:h-80'
+  // Ponto de foco escolhido pela modelo (evita rosto cortado). Default = centro.
+  const estilo = { objectPosition: `${foco?.x ?? 50}% ${foco?.y ?? 50}%` }
   return (
     <div className={grande ? 'col-span-2' : ''}>
       {tipo === 'video' ? (
@@ -30,6 +34,7 @@ export function GaleriaItem({
           disablePictureInPicture
           onContextMenu={semMenu}
           className={classe}
+          style={estilo}
         />
       ) : (
         <img
@@ -39,6 +44,7 @@ export function GaleriaItem({
           draggable={false}
           onContextMenu={semMenu}
           className={classe}
+          style={estilo}
         />
       )}
     </div>

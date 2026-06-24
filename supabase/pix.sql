@@ -5,7 +5,12 @@
 --  o dono edita o próprio perfil (policy "profiles: dono edita").
 -- ============================================================
 
-alter table public.profiles
-  add column if not exists pix_tipo text
-    check (pix_tipo is null or pix_tipo in ('cpf','cnpj','email','telefone','aleatoria')),
-  add column if not exists pix_chave text;
+-- ⚠️ SEGURANÇA (24/06/2026): pix_tipo e pix_chave SAÍRAM de profiles.
+-- Eram lidos publicamente (profiles é lida com SELECT *) e vazavam a chave
+-- Pix/CPF. Agora moram em `profile_private` (RLS dono+admin).
+-- Ver supabase/profile-privado.sql. Este bloco foi neutralizado de propósito
+-- pra reexecutar este arquivo NÃO reabrir o vazamento.
+-- (antes:)
+--   alter table public.profiles
+--     add column if not exists pix_tipo text check (...),
+--     add column if not exists pix_chave text;

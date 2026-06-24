@@ -143,7 +143,12 @@ function Perfil() {
               className="aspect-[3/4] w-full object-cover"
             />
           ) : capa ? (
-            <img src={capa.url} alt={p.nome_exibicao} className="aspect-[3/4] w-full object-cover" />
+            <img
+              src={capa.url}
+              alt={p.nome_exibicao}
+              style={{ objectPosition: `${capa.foco_x}% ${capa.foco_y}%` }}
+              className="aspect-[3/4] w-full object-cover"
+            />
           ) : (
             <div className="flex aspect-[3/4] items-center justify-center text-xs uppercase tracking-widest text-muted">
               [ foto ]
@@ -236,7 +241,13 @@ function Perfil() {
                 {p.fotos
                   .filter((f) => f.id !== capa?.id)
                   .map((f) => (
-                    <GaleriaItem key={f.id} src={f.url} tipo={f.tipo} grande={f.tamanho === 'grande'} />
+                    <GaleriaItem
+                      key={f.id}
+                      src={f.url}
+                      tipo={f.tipo}
+                      grande={f.tamanho === 'grande'}
+                      foco={{ x: f.foco_x, y: f.foco_y }}
+                    />
                   ))}
               </div>
             </section>

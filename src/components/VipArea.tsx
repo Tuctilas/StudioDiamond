@@ -372,7 +372,12 @@ export function VipArea({
                   }`}
                 >
                   <div className="relative">
-                    <GaleriaItem src={m.signedUrl} tipo={m.tipo} grande={m.tamanho === 'grande'} />
+                    <GaleriaItem
+                      src={m.signedUrl}
+                      tipo={m.tipo}
+                      grande={m.tamanho === 'grande'}
+                      foco={{ x: m.foco_x, y: m.foco_y }}
+                    />
                     {marca && (
                       <div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden">
                         <span className="-rotate-[18deg] select-none whitespace-nowrap text-xs font-semibold uppercase tracking-[0.3em] text-white/15">
